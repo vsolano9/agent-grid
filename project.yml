@@ -24,8 +24,8 @@ targets:
     platform: macOS
     sources:
       - path: Sources/AgentGrid
-    resources:
       - path: Resources/Assets.xcassets
+        buildPhase: resources
     dependencies:
       - package: SwiftTerm
     settings:

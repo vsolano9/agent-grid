@@ -15,6 +15,9 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `Sources/AgentGrid/WindowMaximizer.swift` | Normal maximized-window behavior |
 | `Tests/AgentGridTests/` | Launch, resolution, environment, window, and lifecycle contracts |
 | `docs/design/2026-08-22-agent-grid-design.md` | Approved product and visual design |
+| `docs/design/agent-grid-icon-master.png` | Approved 1024 px icon source |
+| `scripts/generate-app-icon.swift` | Deterministic macOS icon-size generation |
+| `scripts/verify-app-icon.sh` | Compiled bundle icon regression check |
 
 ## Durable decisions
 
@@ -24,6 +27,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - The default working directory is `/Volumes/Extreme Pro/Documents/Work`, with home-directory fallback.
 - The app does not restart exited agents or persist terminal state.
 - SwiftTerm is pinned to 1.20.0.
+- All catalog icon sizes are generated from the approved master; never redraw them independently.
 
 ## Validation
 

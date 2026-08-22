@@ -13,6 +13,7 @@
 		1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */; };
 		2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */; };
 		580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */; };
+		5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F09989D6485780AC62902D3D /* Assets.xcassets */; };
 		8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3267808F54D7281E9B2925 /* AgentGridApp.swift */; };
 		B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D973387604B7B18995BF892F /* RuntimePolicy.swift */; };
 		B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */; };
@@ -47,6 +48,7 @@
 		92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchCatalogTests.swift; sourceTree = "<group>"; };
 		D973387604B7B18995BF892F /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
 		E6D8F6081C34369B072DB218 /* TerminalGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalGridView.swift; sourceTree = "<group>"; };
+		F09989D6485780AC62902D3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,14 @@
 			path = Sources/AgentGrid;
 			sourceTree = "<group>";
 		};
+		4BEA47302A6A71BCC5AFAEBA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F09989D6485780AC62902D3D /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		65FDF1F6E7005F3F5771270A /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -103,6 +113,7 @@
 			children = (
 				4BC5FB52AE7F7F50A0E784BE /* AgentGrid */,
 				3B18E0EF841DA8C82B855F45 /* AgentGridTests */,
+				4BEA47302A6A71BCC5AFAEBA /* Resources */,
 				65FDF1F6E7005F3F5771270A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -133,6 +144,7 @@
 			buildConfigurationList = 32F82775D3DE91149ED974C9 /* Build configuration list for PBXNativeTarget "AgentGrid" */;
 			buildPhases = (
 				43722E9C7D69D98A8D8309AC /* Sources */,
+				9E138DCBD5BBD0CED1824956 /* Resources */,
 				E99C49920764A184625A705F /* Frameworks */,
 			);
 			buildRules = (
@@ -183,6 +195,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9E138DCBD5BBD0CED1824956 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		26A0334A1BF3FBD2EEF1BD57 /* Sources */ = {

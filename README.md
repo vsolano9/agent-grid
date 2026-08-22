@@ -37,6 +37,20 @@ xcodegen generate
 xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Debug test
 ```
 
+Regenerate the complete macOS icon set from the approved 1024 px master with:
+
+```bash
+swift scripts/generate-app-icon.swift \
+  docs/design/agent-grid-icon-master.png \
+  Resources/Assets.xcassets/AppIcon.appiconset
+```
+
+After a Release build, verify that Xcode compiled the icon and asset catalog:
+
+```bash
+scripts/verify-app-icon.sh /path/to/AgentGrid.app
+```
+
 The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) to version 1.20.0. CI is intentionally local-only.
 
 ## Safety
