@@ -1,6 +1,6 @@
 # AgentGrid
 
-AgentGrid is a lightweight native macOS app that opens four real terminal sessions in one maximized 2×2 window:
+AgentGrid is a lightweight native macOS app that opens four real terminal sessions in each grid of one maximized window:
 
 | Position | CLI | Auto-approval mode |
 | --- | --- | --- |
@@ -9,7 +9,7 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 | Bottom left | Grok | `--always-approve` |
 | Bottom right | Cursor Agent | `--yolo` |
 
-There are no tabs, sidebars, pane headers, settings, or app-owned services. Closing AgentGrid terminates the four PTYs and their child processes.
+The compact tab strip can keep up to six independent grids open. `⌘T` creates a grid, and `⌘1` through `⌘6` switch between open grids. Switching preserves every terminal session; a tab's close button terminates only that grid's four PTYs. AgentGrid still has no sidebars, pane headers, settings, or app-owned services.
 
 ## Requirements
 
@@ -55,7 +55,7 @@ The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/Sw
 
 ## Safety
 
-All four agents start in their unrestricted/auto-approval modes. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, or telemetry.
+Every agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, or telemetry.
 
 ## License
 

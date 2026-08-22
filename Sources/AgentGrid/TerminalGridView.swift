@@ -27,6 +27,8 @@ struct AgentGridConfiguration: Sendable {
 
 struct TerminalGridView: View {
     let configuration: AgentGridConfiguration
+    let isWindowPrepared: Bool
+    var isActive = true
 
     var body: some View {
         VStack(spacing: 1) {
@@ -41,11 +43,51 @@ struct TerminalGridView: View {
         _ trailing: AgentLaunchSpec
     ) -> some View {
         HStack(spacing: 1) {
-            TerminalPane(spec: leading, environment: configuration.environment)
+            TerminalPane(
+                spec: leading,
+                environment: configuration.environment,
+                isWindowPrepared: isWindowPrepared,
+                isGridActive: isActive,
+                prefersFocus: leading.kind == .codex
+            )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            TerminalPane(spec: trailing, environment: configuration.environment)
+            TerminalPane(
+                spec: trailing,
+                environment: configuration.environment,
+                isWindowPrepared: isWindowPrepared,
+                isGridActive: isActive,
+                prefersFocus: false
+            )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxHeight: .infinity)
+    }
+}
+
+struct TerminalGridDeck: View {
+    let grids: [AgentGridTab]
+    let selectedID: AgentGridTab.ID
+    let configuration: AgentGridConfiguration
+    let isWindowPrepared: Bool
+
+    var body: some View {
+        ZStack {
+            ForEach(grids) { grid in
+                let isSelected = grid.id == selectedID
+
+                TerminalGridView(
+                    configuration: configuration,
+                    isWindowPrepared: isWindowPrepared,
+                    isActive: isSelected
+                )
+                .opacity(isSelected ? 1 : 0)
+                .allowsHitTesting(isSelected)
+                .accessibilityHidden(!isSelected)
+                .zIndex(isSelected ? 1 : 0)
+            }
+        }
+        .transaction { transaction in
+            transaction.disablesAnimations = true
+        }
     }
 }

@@ -5,6 +5,9 @@ import SwiftUI
 struct TerminalPane: NSViewRepresentable {
     let spec: AgentLaunchSpec
     let environment: [String: String]
+    let isWindowPrepared: Bool
+    let isGridActive: Bool
+    let prefersFocus: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -31,16 +34,27 @@ struct TerminalPane: NSViewRepresentable {
                 currentDirectory: spec.workingDirectory.path
             )
         }
+        terminal.updateWindowReadiness(isPrepared: isWindowPrepared)
+        terminal.updateGridActivation(
+            isActive: isGridActive,
+            prefersFocus: prefersFocus
+        )
         return terminal
     }
 
-    func updateNSView(_ nsView: LaunchingTerminalView, context: Context) {}
+    func updateNSView(_ nsView: LaunchingTerminalView, context: Context) {
+        nsView.updateWindowReadiness(isPrepared: isWindowPrepared)
+        nsView.updateGridActivation(
+            isActive: isGridActive,
+            prefersFocus: prefersFocus
+        )
+    }
 
     static func dismantleNSView(
         _ nsView: LaunchingTerminalView,
         coordinator: Coordinator
     ) {
-        nsView.terminate()
+        nsView.terminateAndReap()
     }
 
     final class Coordinator: NSObject, LocalProcessTerminalViewDelegate {
@@ -60,25 +74,84 @@ struct TerminalPane: NSViewRepresentable {
 
 final class LaunchingTerminalView: LocalProcessTerminalView {
     private var launchGate = TerminalLaunchGate()
+    private var activationGate = TerminalActivationGate()
     private var launchHandler: (() -> Void)?
+    private var isWindowPrepared = false
+    private var shouldFocusWhenAttached = false
 
     func launchWhenReady(_ handler: @escaping () -> Void) {
         launchHandler = handler
-        launchIfReady()
+        scheduleLaunchIfReady()
+    }
+
+    func updateGridActivation(isActive: Bool, prefersFocus: Bool) {
+        setAccessibilityHidden(!isActive)
+
+        if !isActive {
+            shouldFocusWhenAttached = false
+        }
+
+        if activationGate.shouldClaimFocus(
+            isActive: isActive,
+            prefersFocus: prefersFocus
+        ) {
+            shouldFocusWhenAttached = true
+            focusIfReady()
+        }
+    }
+
+    func updateWindowReadiness(isPrepared: Bool) {
+        isWindowPrepared = isPrepared
+        scheduleLaunchIfReady()
+    }
+
+    func terminateAndReap() {
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(performDeferredLaunch),
+            object: nil
+        )
+        let pid = process.shellPid
+        terminate()
+        ChildProcessReaper.live.reap(pid)
     }
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        launchIfReady()
+        scheduleLaunchIfReady()
+        focusIfReady()
     }
 
     override func layout() {
         super.layout()
-        launchIfReady()
+        scheduleLaunchIfReady()
     }
 
-    private func launchIfReady() {
+    private func scheduleLaunchIfReady() {
+        guard launchHandler != nil,
+              isWindowPrepared,
+              window != nil,
+              bounds.width > 0,
+              bounds.height > 0 else {
+            return
+        }
+
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(performDeferredLaunch),
+            object: nil
+        )
+        perform(
+            #selector(performDeferredLaunch),
+            with: nil,
+            afterDelay: 0.2
+        )
+    }
+
+    @objc
+    private func performDeferredLaunch() {
         guard launchGate.beginIfReady(
+            isWindowPrepared: isWindowPrepared,
             isAttached: window != nil,
             width: bounds.width,
             height: bounds.height
@@ -89,5 +162,15 @@ final class LaunchingTerminalView: LocalProcessTerminalView {
         let handler = launchHandler
         launchHandler = nil
         handler?()
+    }
+
+    private func focusIfReady() {
+        guard shouldFocusWhenAttached, let window else { return }
+
+        shouldFocusWhenAttached = false
+        DispatchQueue.main.async { [weak self, weak window] in
+            guard let self, self.window === window else { return }
+            window?.makeFirstResponder(self)
+        }
     }
 }

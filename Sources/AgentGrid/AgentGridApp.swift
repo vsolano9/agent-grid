@@ -3,12 +3,16 @@ import SwiftUI
 @main
 struct AgentGridApp: App {
     private let configuration = AgentGridConfiguration.live()
+    @State private var windowState = AgentGridWindowState()
 
     var body: some Scene {
         Window("AgentGrid", id: "main") {
-            TerminalGridView(configuration: configuration)
+            AgentGridWorkspaceView(
+                configuration: configuration,
+                isWindowPrepared: windowState.isPrepared
+            )
                 .frame(minWidth: 800, minHeight: 520)
-                .background(WindowMaximizer())
+                .background(WindowMaximizer(state: windowState))
         }
         .defaultSize(width: 1_280, height: 800)
         .defaultPosition(.center)
