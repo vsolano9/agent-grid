@@ -4,6 +4,15 @@ import Testing
 
 @Suite("Terminal launch lifecycle")
 struct TerminalLaunchGateTests {
+    @Test("only the top-left pane receives initial focus even when every CLI is Codex")
+    func focusBelongsToPanePosition() {
+        let preferences = AgentPanePosition.allCases.map(
+            TerminalGridLayoutPolicy.prefersFocus(at:)
+        )
+
+        #expect(preferences == [true, false, false, false])
+    }
+
     @Test("launches once only after attachment and layout")
     func launchesOnceWhenReady() {
         var gate = TerminalLaunchGate()

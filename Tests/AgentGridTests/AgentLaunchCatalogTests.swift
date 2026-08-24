@@ -3,6 +3,80 @@ import Testing
 @testable import AgentGrid
 
 struct AgentLaunchCatalogTests {
+    @Test("A selection always contains exactly four pane assignments")
+    func selectionCardinality() {
+        #expect(AgentGridSelection(agents: [.codex, .claude, .grok]) == nil)
+        #expect(AgentGridSelection(agents: [.codex, .claude, .grok, .cursor]) != nil)
+        #expect(AgentGridSelection(agents: [.codex, .claude, .grok, .cursor, .codex]) == nil)
+    }
+
+    @Test("Catalog expands duplicate CLI choices in exact pane order")
+    func duplicateSelection() throws {
+        let workspace = URL(fileURLWithPath: "/work")
+        let selection = try #require(
+            AgentGridSelection(agents: Array(repeating: .codex, count: 4))
+        )
+
+        let specs = AgentLaunchCatalog.make(
+            selection: selection,
+            workspace: workspace,
+            resolver: StubExecutableResolver()
+        )
+
+        #expect(specs.map(\.kind) == [.codex, .codex, .codex, .codex])
+        #expect(specs.allSatisfy { $0.executable.path == "/test-bin/codex" })
+        #expect(specs.allSatisfy {
+            $0.arguments == ["--dangerously-bypass-approvals-and-sandbox"]
+        })
+        #expect(specs.allSatisfy { $0.workingDirectory == workspace })
+    }
+
+    @Test("Live configuration expands a frozen duplicate selection without re-resolving")
+    func configurationExpandsSelection() throws {
+        let workspace = URL(fileURLWithPath: "/work")
+        let catalog = AgentLaunchCatalog.make(
+            workspace: workspace,
+            resolver: StubExecutableResolver()
+        )
+        let configuration = AgentGridConfiguration(
+            catalog: catalog,
+            environment: ["TERM": "xterm-256color"],
+            workspace: workspace
+        )
+        let selection = try #require(
+            AgentGridSelection(agents: Array(repeating: .codex, count: 4))
+        )
+
+        let specs = configuration.launchSpecs(for: selection)
+
+        #expect(specs.map(\.kind) == [.codex, .codex, .codex, .codex])
+        #expect(specs.allSatisfy { $0.executable.path == "/test-bin/codex" })
+        #expect(specs.allSatisfy { $0.workingDirectory == workspace })
+    }
+
+    @Test("Configuration applies a grid-specific working directory to every pane")
+    func configurationAppliesGridWorkspace() throws {
+        let defaultWorkspace = URL(fileURLWithPath: "/work")
+        let gridWorkspace = URL(fileURLWithPath: "/work/custom-grid")
+        let catalog = AgentLaunchCatalog.make(
+            workspace: defaultWorkspace,
+            resolver: StubExecutableResolver()
+        )
+        let configuration = AgentGridConfiguration(
+            catalog: catalog,
+            environment: [:],
+            workspace: defaultWorkspace
+        )
+
+        let specs = configuration.launchSpecs(
+            for: .standard,
+            workingDirectory: gridWorkspace
+        )
+
+        #expect(specs.count == 4)
+        #expect(specs.allSatisfy { $0.workingDirectory == gridWorkspace })
+    }
+
     @Test("Catalog preserves the approved 2x2 pane order")
     func paneOrder() {
         let specs = AgentLaunchCatalog.make(

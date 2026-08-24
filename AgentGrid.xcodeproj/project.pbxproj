@@ -13,6 +13,7 @@
 		18707C42DD71D702540433E1 /* WindowMaximizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */; };
 		1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */; };
 		2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */; };
+		356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */; };
 		580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */; };
 		5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F09989D6485780AC62902D3D /* Assets.xcassets */; };
 		8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3267808F54D7281E9B2925 /* AgentGridApp.swift */; };
@@ -54,6 +55,7 @@
 		8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicyTests.swift; sourceTree = "<group>"; };
 		92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchCatalogTests.swift; sourceTree = "<group>"; };
 		BF08C99234A7699DEAF178FF /* GridTabStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabStrip.swift; sourceTree = "<group>"; };
+		BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSetupView.swift; sourceTree = "<group>"; };
 		D973387604B7B18995BF892F /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
 		E6D8F6081C34369B072DB218 /* TerminalGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalGridView.swift; sourceTree = "<group>"; };
 		F09989D6485780AC62902D3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 				5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */,
 				1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */,
 				7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */,
+				BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */,
 				685FA8FB5BD7537B088C907E /* GridTabsModel.swift */,
 				BF08C99234A7699DEAF178FF /* GridTabStrip.swift */,
 				D973387604B7B18995BF892F /* RuntimePolicy.swift */,
@@ -240,6 +243,7 @@
 				D7E1C7432FD7D3935B74A2A7 /* AgentGridWorkspaceView.swift in Sources */,
 				B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */,
 				1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */,
+				356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */,
 				D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */,
 				1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */,
 				B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */,
@@ -423,7 +427,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -434,7 +438,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;
@@ -447,7 +451,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -458,7 +462,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;

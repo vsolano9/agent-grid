@@ -1,8 +1,38 @@
 import SwiftUI
 
+enum TerminalGridLayoutPolicy {
+    static func prefersFocus(at position: AgentPanePosition) -> Bool {
+        position == .topLeft
+    }
+}
+
 struct AgentGridConfiguration: Sendable {
-    let specs: [AgentLaunchSpec]
+    let catalog: [AgentLaunchSpec]
     let environment: [String: String]
+    let workspace: URL
+
+    func launchSpecs(
+        for selection: AgentGridSelection,
+        workingDirectory: URL? = nil
+    ) -> [AgentLaunchSpec] {
+        let specsByKind = Dictionary(
+            uniqueKeysWithValues: catalog.map { ($0.kind, $0) }
+        )
+
+        let selectedWorkspace = workingDirectory ?? workspace
+
+        return selection.agents.map { kind in
+            guard let spec = specsByKind[kind] else {
+                preconditionFailure("Missing launch specification for \(kind.rawValue)")
+            }
+            return AgentLaunchSpec(
+                kind: spec.kind,
+                executable: spec.executable,
+                arguments: spec.arguments,
+                workingDirectory: selectedWorkspace
+            )
+        }
+    }
 
     static func live(
         baseEnvironment: [String: String] = ProcessInfo.processInfo.environment,
@@ -19,41 +49,52 @@ struct AgentGridConfiguration: Sendable {
         let workspace = WorkspaceLocator(homeDirectory: homeDirectory).workspace()
 
         return Self(
-            specs: AgentLaunchCatalog.make(workspace: workspace, resolver: resolver),
-            environment: environment
+            catalog: AgentLaunchCatalog.make(workspace: workspace, resolver: resolver),
+            environment: environment,
+            workspace: workspace
         )
     }
 }
 
 struct TerminalGridView: View {
-    let configuration: AgentGridConfiguration
+    let specs: [AgentLaunchSpec]
+    let environment: [String: String]
     let isWindowPrepared: Bool
     var isActive = true
 
     var body: some View {
         VStack(spacing: 1) {
-            terminalRow(configuration.specs[0], configuration.specs[1])
-            terminalRow(configuration.specs[2], configuration.specs[3])
+            terminalRow(
+                specs[0],
+                leadingPosition: .topLeft,
+                specs[1]
+            )
+            terminalRow(
+                specs[2],
+                leadingPosition: .bottomLeft,
+                specs[3]
+            )
         }
         .background(Color(nsColor: .separatorColor))
     }
 
     private func terminalRow(
         _ leading: AgentLaunchSpec,
+        leadingPosition: AgentPanePosition,
         _ trailing: AgentLaunchSpec
     ) -> some View {
         HStack(spacing: 1) {
             TerminalPane(
                 spec: leading,
-                environment: configuration.environment,
+                environment: environment,
                 isWindowPrepared: isWindowPrepared,
                 isGridActive: isActive,
-                prefersFocus: leading.kind == .codex
+                prefersFocus: TerminalGridLayoutPolicy.prefersFocus(at: leadingPosition)
             )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             TerminalPane(
                 spec: trailing,
-                environment: configuration.environment,
+                environment: environment,
                 isWindowPrepared: isWindowPrepared,
                 isGridActive: isActive,
                 prefersFocus: false
@@ -73,17 +114,24 @@ struct TerminalGridDeck: View {
     var body: some View {
         ZStack {
             ForEach(grids) { grid in
-                let isSelected = grid.id == selectedID
+                if let selection = grid.launchedSelection,
+                   let workingDirectory = grid.launchedWorkingDirectory {
+                    let isSelected = grid.id == selectedID
 
-                TerminalGridView(
-                    configuration: configuration,
-                    isWindowPrepared: isWindowPrepared,
-                    isActive: isSelected
-                )
-                .opacity(isSelected ? 1 : 0)
-                .allowsHitTesting(isSelected)
-                .accessibilityHidden(!isSelected)
-                .zIndex(isSelected ? 1 : 0)
+                    TerminalGridView(
+                        specs: configuration.launchSpecs(
+                            for: selection,
+                            workingDirectory: workingDirectory
+                        ),
+                        environment: configuration.environment,
+                        isWindowPrepared: isWindowPrepared,
+                        isActive: isSelected
+                    )
+                    .opacity(isSelected ? 1 : 0)
+                    .allowsHitTesting(isSelected)
+                    .accessibilityHidden(!isSelected)
+                    .zIndex(isSelected ? 1 : 0)
+                }
             }
         }
         .transaction { transaction in

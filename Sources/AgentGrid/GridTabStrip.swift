@@ -69,7 +69,7 @@ struct GridTabStrip: View {
         .disabled(!model.canAdd)
         .keyboardShortcut("t", modifiers: .command)
         .accessibilityLabel("New agent grid")
-        .accessibilityHint(model.canAdd ? "Opens four new agent terminals" : "Six grids are already open")
+        .accessibilityHint(model.canAdd ? "Opens setup for four agent terminals" : "Six grids are already open")
         .help(model.canAdd ? "New Agent Grid (⌘T)" : "Maximum of six grids")
     }
 
@@ -125,7 +125,11 @@ private struct GridTabItem: View {
                 modifiers: .command
             )
             .accessibilityLabel(grid.title)
-            .accessibilityHint("Shows this four-agent terminal grid")
+            .accessibilityHint(
+                grid.isLaunched
+                    ? "Shows this four-agent terminal grid"
+                    : "Shows setup for this agent grid"
+            )
             .accessibilityAddTraits(isSelected ? .isSelected : [])
 
             closeSlot
@@ -174,7 +178,11 @@ private struct GridTabItem: View {
         .foregroundStyle(Color.white.opacity(isSelected || isHovered ? 0.76 : 0))
         .allowsHitTesting(isSelected || isHovered)
         .accessibilityLabel("Close \(grid.title)")
-        .accessibilityHint("Terminates this grid's four agent sessions")
+        .accessibilityHint(
+            grid.isLaunched
+                ? "Terminates this grid's four agent sessions"
+                : "Closes this unlaunched grid setup"
+        )
         .help("Close \(grid.title)")
     }
 
