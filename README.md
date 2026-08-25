@@ -14,7 +14,7 @@ Every position is independent, so combinations such as four Codex sessions are s
 
 Before terminal setup appears, AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order. It installs a CLI only when its official version check reports a newer release, then repairs the stable launchers under `~/.local/bin` and verifies every launcher with `--version`. A failed check or update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
-A compact rail along the bottom shows supported account quota as percentage remaining. Codex currently exposes a safe account-wide quota reading, so its segment shows a real value such as `55% left`. Claude exposes plan status only through interactive `/usage`; Grok and Cursor expose their allowance in account dashboards; Hermes exposes session tokens while routing through an underlying provider. Those segments show an em dash with a tooltip pointing to the authoritative surface rather than scraping private endpoints or mixing unlike metrics. The refresh button requests a fresh reading.
+A compact rail along the bottom shows live account quota remaining for Codex, Claude, Grok, and Cursor, such as `Codex 55% left`. AgentGrid reads the same authenticated local state used by each installed client, requests each provider's account-level usage endpoint in parallel, and keeps the last successful value visibly stale if a later refresh fails. Claude reports the most constrained active window so the single percentage never hides a tighter weekly or model-specific limit. Hermes is intentionally absent because it routes work through those underlying providers rather than owning a comparable account quota. The refresh button requests a fresh reading.
 
 ## Requirements
 
@@ -69,11 +69,11 @@ After a Release build, verify that Xcode compiled the icon and asset catalog:
 scripts/verify-app-icon.sh /path/to/AgentGrid.app
 ```
 
-The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) to version 1.20.0. CI is intentionally local-only.
+The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) to version 1.20.0. Provider usage integration was informed by the MIT-licensed [CodexBar](https://github.com/steipete/CodexBar); attribution is retained in `THIRD_PARTY_NOTICES.md`. CI is intentionally local-only.
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads current quota locally from authenticated CLI state and does not transmit or persist it.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, quota history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads credentials from the existing Claude Keychain item, Grok auth file, Cursor read-only state database, and Codex app-server session only long enough to request current quota; secrets and provider payloads are never logged or persisted.
 
 ## License
 

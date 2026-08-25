@@ -19,6 +19,10 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `Sources/AgentGrid/CLIMaintenanceView.swift` | Startup progress and blocking failure surface |
 | `Sources/AgentGrid/CLIUsageReading.swift` | Honest per-provider quota capability and live reader composition |
 | `Sources/AgentGrid/CodexUsageReader.swift` | Local Codex app-server quota handshake |
+| `Sources/AgentGrid/ClaudeUsageReader.swift` | Claude Keychain credential loading and OAuth usage reader |
+| `Sources/AgentGrid/GrokUsageReader.swift` | Grok auth-file loading and credit usage reader |
+| `Sources/AgentGrid/CursorUsageReader.swift` | Read-only Cursor SQLite auth loading and usage-summary reader |
+| `Sources/AgentGrid/ProviderUsageHTTPTransport.swift` | Isolated, testable provider HTTP transport |
 | `Sources/AgentGrid/CLIUsageBar.swift` | Compact bottom quota rail and manual refresh control |
 | `Sources/AgentGrid/GridTabsModel.swift` | One-to-six draft/launch tab, naming, selection, and close policy |
 | `Sources/AgentGrid/GridTabStrip.swift` | Custom tab states, shortcuts, motion, and accessibility |
@@ -54,11 +58,13 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - Lifecycle cancellation stops the active updater process group and does not begin later updater commands.
 - Hermes keeps an environment-sanitizing launcher so inherited `PYTHONHOME` or `PYTHONPATH` cannot break its managed virtual environment.
 - AgentGrid does not edit shell profiles, credentials, or provider configuration during maintenance.
-- The bottom usage rail displays only comparable account quota remaining. Codex is read locally from its authenticated app-server API; providers without a safe account-wide CLI percentage show an explicit unavailable state. Readings are neither persisted nor sent elsewhere.
+- The bottom usage rail displays comparable account quota remaining for Codex, Claude, Grok, and Cursor only. Hermes is omitted because it routes through underlying providers.
+- Codex uses its authenticated app-server API; Claude reads its existing Keychain credential and selects the most constrained active OAuth usage window; Grok reads its CLI auth file and credit endpoint; Cursor reads its local state database in SQLite read-only mode and follows usage-summary percentage precedence.
+- Provider fetches are isolated and concurrent. A failed refresh retains the last successful value as stale; no credentials, raw responses, or quota history are logged or persisted.
 - The app does not restart exited agents or persist terminal state.
 - SwiftTerm is pinned to 1.20.0.
 - All catalog icon sizes are generated from the approved master; never redraw them independently.
 
 ## Validation
 
-Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five version checks, no updater invocation for current versions, updater invocation for an available version, direct success of every canonical alias, a real Codex quota reading, honest unavailable states for unsupported providers, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.
+Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five version checks, no updater invocation for current versions, updater invocation for an available version, direct success of every canonical alias, real quota readings for Codex, Claude, Grok, and Cursor, no Hermes quota segment, provider-failure isolation and stale-value behavior, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.

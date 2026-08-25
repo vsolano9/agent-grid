@@ -1,6 +1,6 @@
 import Foundation
 
-actor CodexUsageReader: CodexQuotaReading {
+actor CodexUsageReader: ProviderQuotaReading {
     let executable: URL
     let environment: [String: String]
 
@@ -9,8 +9,8 @@ actor CodexUsageReader: CodexQuotaReading {
         self.environment = environment
     }
 
-    func fetch() async throws -> CLIUsageState {
-        try await withThrowingTaskGroup(of: CLIUsageState.self) { group in
+    func fetchRemainingPercent() async throws -> Int {
+        try await withThrowingTaskGroup(of: Int.self) { group in
             group.addTask { try await self.readFromAppServer() }
             group.addTask {
                 try await Task.sleep(for: .seconds(8))
@@ -25,7 +25,7 @@ actor CodexUsageReader: CodexQuotaReading {
         }
     }
 
-    private func readFromAppServer() async throws -> CLIUsageState {
+    private func readFromAppServer() async throws -> Int {
         let process = Process()
         let input = Pipe()
         let output = Pipe()

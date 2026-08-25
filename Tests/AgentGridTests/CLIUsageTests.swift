@@ -15,7 +15,7 @@ struct CLIUsageTests {
 
         let reading = try CodexUsageResponseParser.parse(payload)
 
-        #expect(reading == .available(remainingPercent: values.remaining))
+        #expect(reading == values.remaining)
     }
 
     @Test("Codex quota parser rejects successful protocol messages without a quota window")
@@ -26,7 +26,7 @@ struct CLIUsageTests {
     }
 
     @MainActor
-    @Test("Usage model always publishes one ordered honest state per CLI")
+    @Test("Usage model publishes only the four account quota providers in order")
     func usageModelNormalizesProviderResults() async {
         let reader = StubCLIUsageReader(readings: [
             .codex: .available(remainingPercent: 55),
@@ -34,17 +34,36 @@ struct CLIUsageTests {
         ])
         let model = CLIUsageModel(reader: reader)
 
-        #expect(model.entries.map(\.state) == Array(repeating: .loading, count: 5))
+        #expect(model.entries.map(\.state) == Array(repeating: .loading, count: 4))
 
         await model.start()
 
-        #expect(model.entries.map(\.kind) == AgentKind.allCases)
+        #expect(model.entries.map(\.kind) == [.codex, .claude, .grok, .cursor])
         #expect(model.entries[0].state == .available(remainingPercent: 55))
         #expect(model.entries[1].state == .unavailable(reason: "Claude does not expose account quota to scripts."))
         #expect(model.entries.dropFirst(2).allSatisfy {
             $0.state == .unavailable(reason: "Account quota is not exposed by this CLI.")
         })
         #expect(await reader.callCount == 1)
+    }
+
+    @Test("Usage service keeps a last-good provider value when the next refresh fails")
+    func usageServiceKeepsLastGoodValue() async {
+        let codex = SequencedProviderQuotaReader(results: [
+            .success(55),
+            .failure(TestUsageError.offline),
+        ])
+        let service = CLIUsageService(readers: [.codex: codex])
+
+        let first = await service.fetch()
+        let second = await service.fetch()
+
+        #expect(first[.codex] == .available(remainingPercent: 55))
+        #expect(second[.codex] == .stale(
+            remainingPercent: 55,
+            reason: "Codex quota could not be refreshed."
+        ))
+        #expect(second[.hermes] == nil)
     }
 
     @MainActor
@@ -60,6 +79,23 @@ struct CLIUsageTests {
 
         #expect(await reader.callCount == 2)
         #expect(model.entries[0].state == .available(remainingPercent: 51))
+    }
+}
+
+private enum TestUsageError: Error {
+    case offline
+}
+
+private actor SequencedProviderQuotaReader: ProviderQuotaReading {
+    private var results: [Result<Int, Error>]
+
+    init(results: [Result<Int, Error>]) {
+        self.results = results
+    }
+
+    func fetchRemainingPercent() async throws -> Int {
+        guard !results.isEmpty else { throw TestUsageError.offline }
+        return try results.removeFirst().get()
     }
 }
 

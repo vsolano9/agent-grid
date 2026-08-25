@@ -55,6 +55,10 @@ struct CLIUsageSegment: View {
             Text("\(remainingPercent)% left")
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.primary)
+        case let .stale(remainingPercent, _):
+            Text("\(remainingPercent)% left")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
         case .unavailable:
             Text("—")
                 .font(.caption.monospacedDigit())
@@ -71,8 +75,12 @@ struct CLIUsageSegment: View {
     }
 
     private var fillFraction: Double {
-        guard case let .available(remainingPercent) = entry.state else { return 0 }
-        return Double(min(max(remainingPercent, 0), 100)) / 100
+        switch entry.state {
+        case let .available(remainingPercent), let .stale(remainingPercent, _):
+            return Double(min(max(remainingPercent, 0), 100)) / 100
+        case .loading, .unavailable:
+            return 0
+        }
     }
 
     private var helpText: String {
@@ -80,6 +88,8 @@ struct CLIUsageSegment: View {
         case .loading: "Refreshing \(shortName) account quota."
         case let .available(remainingPercent):
             "\(shortName) account quota: \(remainingPercent) percent remaining."
+        case let .stale(remainingPercent, reason):
+            "\(shortName) account quota: \(remainingPercent) percent remaining from the last successful refresh. \(reason)"
         case let .unavailable(reason): reason
         }
     }

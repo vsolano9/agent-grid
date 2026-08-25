@@ -4,7 +4,7 @@ import Observation
 @MainActor
 @Observable
 final class CLIUsageModel {
-    private(set) var entries = AgentKind.allCases.map {
+    private(set) var entries = CLIUsageService.displayedKinds.map {
         CLIUsageEntry(kind: $0, state: .loading)
     }
     private(set) var isRefreshing = false
@@ -28,7 +28,7 @@ final class CLIUsageModel {
         defer { isRefreshing = false }
 
         let values = await reader.fetch()
-        entries = AgentKind.allCases.map { kind in
+        entries = CLIUsageService.displayedKinds.map { kind in
             CLIUsageEntry(
                 kind: kind,
                 state: values[kind]

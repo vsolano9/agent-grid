@@ -8,7 +8,7 @@ enum CLIUsageError: Error, Equatable {
 }
 
 enum CodexUsageResponseParser {
-    static func parse(_ value: String) throws -> CLIUsageState {
+    static func parse(_ value: String) throws -> Int {
         guard let data = value.data(using: .utf8),
               let response = try? JSONDecoder().decode(CodexRateLimitResponse.self, from: data) else {
             throw CLIUsageError.invalidResponse
@@ -18,7 +18,7 @@ enum CodexUsageResponseParser {
         }
 
         let boundedUsed = min(max(usedPercent, 0), 100)
-        return .available(remainingPercent: 100 - boundedUsed)
+        return 100 - boundedUsed
     }
 }
 

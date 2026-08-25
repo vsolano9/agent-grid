@@ -3,6 +3,7 @@ import Foundation
 enum CLIUsageState: Equatable, Sendable {
     case loading
     case available(remainingPercent: Int)
+    case stale(remainingPercent: Int, reason: String)
     case unavailable(reason: String)
 }
 
