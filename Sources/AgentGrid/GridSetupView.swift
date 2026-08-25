@@ -96,7 +96,7 @@ struct GridSetupView: View {
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(Color.white.opacity(0.94))
 
-            Text("Choose one CLI for each pane. Repeating a CLI is allowed.")
+            Text("Choose one CLI for each pane. Choices are remembered; repeats are allowed.")
                 .font(.system(size: 13))
                 .foregroundStyle(Color.white.opacity(0.62))
                 .multilineTextAlignment(.center)

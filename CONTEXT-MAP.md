@@ -25,6 +25,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `Sources/AgentGrid/ProviderUsageHTTPTransport.swift` | Isolated, testable provider HTTP transport |
 | `Sources/AgentGrid/CLIUsageBar.swift` | Compact bottom quota rail and manual refresh control |
 | `Sources/AgentGrid/GridTabsModel.swift` | One-to-six draft/launch tab, naming, selection, and close policy |
+| `Sources/AgentGrid/GridSelectionStore.swift` | Versioned per-grid CLI-choice persistence in macOS preferences |
 | `Sources/AgentGrid/GridTabStrip.swift` | Custom tab states, shortcuts, motion, and accessibility |
 | `Sources/AgentGrid/GridSetupView.swift` | Four-position CLI, per-grid working-directory, and launch surface |
 | `Sources/AgentGrid/AgentGridWorkspaceView.swift` | Tab strip and retained terminal-deck composition |
@@ -46,6 +47,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - The window is maximized, never native fullscreen.
 - Each tab is a fixed 2×2 grid; the only navigation is the compact top tab strip.
 - Every app launch and new grid starts with four independent CLI selectors. Repeated kinds, including four Codex panes, are valid.
+- Each numbered grid's four CLI choices are saved immediately to a versioned UserDefaults record and restored when that grid number is created on a later app launch. Invalid records fall back to the standard layout.
 - Every new grid defaults to `/Volumes/Extreme Pro/Documents/Work`; a different folder may be chosen independently before launch.
 - Launch freezes that grid's CLI and working-directory selections. Running grids are not reconfigured in place.
 - One to six grids may be open. Switching keeps every running PTY mounted and every draft selection intact; closing a running tab terminates and reaps exactly its four children.
@@ -61,7 +63,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - The bottom usage rail displays comparable account quota remaining for Codex, Claude, Grok, and Cursor only. Hermes is omitted because it routes through underlying providers.
 - Codex uses its authenticated app-server API; Claude reads its existing Keychain credential and selects the most constrained active OAuth usage window; Grok reads its CLI auth file and credit endpoint; Cursor reads its local state database in SQLite read-only mode and follows usage-summary percentage precedence.
 - Provider fetches are isolated and concurrent. A failed refresh retains the last successful value as stale; no credentials, raw responses, or quota history are logged or persisted.
-- The app does not restart exited agents or persist terminal state.
+- The app does not restart exited agents or persist terminal state, working directories, prompts, or credentials.
 - SwiftTerm is pinned to 1.20.0.
 - All catalog icon sizes are generated from the approved master; never redraw them independently.
 

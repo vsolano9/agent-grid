@@ -7,7 +7,7 @@ import Testing
 struct GridTabsModelTests {
     @Test("starts with one selected grid")
     func initialState() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
 
         #expect(model.grids.map(\.title) == ["Grid 1"])
@@ -20,7 +20,7 @@ struct GridTabsModelTests {
 
     @Test("draft pane choices allow duplicates and freeze when launched")
     func configureAndLaunch() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
 
         for position in AgentPanePosition.allCases {
@@ -40,7 +40,7 @@ struct GridTabsModelTests {
 
     @Test("every added grid gets an independent setup draft")
     func independentDrafts() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
         model.setAgent(.codex, at: .topRight, in: first.id)
 
@@ -54,12 +54,49 @@ struct GridTabsModelTests {
         #expect(model.grid(id: second.id)?.draftSelection == .standard)
     }
 
+    @Test("each grid restores and saves its own CLI choices across model relaunches")
+    func persistentGridChoices() throws {
+        let allHermes = try #require(AgentGridSelection(
+            agents: Array(repeating: .hermes, count: AgentGridSelection.paneCount)
+        ))
+        let allClaude = try #require(AgentGridSelection(
+            agents: Array(repeating: .claude, count: AgentGridSelection.paneCount)
+        ))
+        let store = InMemoryGridSelectionStore(selections: [
+            1: allHermes,
+            2: allClaude,
+        ])
+
+        let firstRun = GridTabsModel(selectionStore: store)
+        let first = try #require(firstRun.grids.first)
+        let second = try #require(firstRun.addGrid())
+
+        #expect(first.draftSelection == allHermes)
+        #expect(second.draftSelection == allClaude)
+
+        firstRun.setAgent(.grok, at: .topLeft, in: second.id)
+        #expect(store.selection(forGrid: 2)?.agents == [
+            .grok, .claude, .claude, .claude,
+        ])
+
+        let relaunched = GridTabsModel(selectionStore: store)
+        let restoredFirst = try #require(relaunched.grids.first)
+        let restoredSecond = try #require(relaunched.addGrid())
+        #expect(restoredFirst.draftSelection == allHermes)
+        #expect(restoredSecond.draftSelection.agents == [
+            .grok, .claude, .claude, .claude,
+        ])
+    }
+
     @Test("each grid starts in Work and freezes its own directory at launch")
     func perGridWorkingDirectory() throws {
         let work = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work")
         let custom = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work/apps")
         let ignored = URL(fileURLWithPath: "/tmp")
-        let model = GridTabsModel(defaultWorkspace: work)
+        let model = GridTabsModel(
+            defaultWorkspace: work,
+            selectionStore: InMemoryGridSelectionStore()
+        )
         let first = try #require(model.grids.first)
 
         #expect(first.draftWorkingDirectory == work)
@@ -80,7 +117,7 @@ struct GridTabsModelTests {
 
     @Test("adding selects a monotonically named grid")
     func addGrid() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
 
         let second = try #require(model.addGrid())
         model.close(second.id)
@@ -94,7 +131,7 @@ struct GridTabsModelTests {
 
     @Test("select ignores IDs outside the open collection")
     func selection() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
         let second = try #require(model.addGrid())
 
@@ -107,7 +144,7 @@ struct GridTabsModelTests {
 
     @Test("closing the selected middle grid selects the grid moving into its slot")
     func closeSelectedMiddle() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let second = try #require(model.addGrid())
         let third = try #require(model.addGrid())
 
@@ -120,7 +157,7 @@ struct GridTabsModelTests {
 
     @Test("closing the selected final grid selects its predecessor")
     func closeSelectedFinal() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let second = try #require(model.addGrid())
         let third = try #require(model.addGrid())
 
@@ -131,7 +168,7 @@ struct GridTabsModelTests {
 
     @Test("closing an inactive grid preserves selection and surviving identities")
     func closeInactive() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
         let second = try #require(model.addGrid())
         let third = try #require(model.addGrid())
@@ -144,7 +181,7 @@ struct GridTabsModelTests {
 
     @Test("the final grid cannot close and the collection is capped at six")
     func bounds() throws {
-        let model = GridTabsModel()
+        let model = GridTabsModel(selectionStore: InMemoryGridSelectionStore())
         let first = try #require(model.grids.first)
 
         model.close(first.id)
@@ -156,5 +193,21 @@ struct GridTabsModelTests {
         #expect(!model.canAdd)
         #expect(model.canClose)
         #expect(model.grids.first?.id == first.id)
+    }
+}
+
+private final class InMemoryGridSelectionStore: GridSelectionPersisting {
+    private var selections: [Int: AgentGridSelection]
+
+    init(selections: [Int: AgentGridSelection] = [:]) {
+        self.selections = selections
+    }
+
+    func selection(forGrid number: Int) -> AgentGridSelection? {
+        selections[number]
+    }
+
+    func save(_ selection: AgentGridSelection, forGrid number: Int) {
+        selections[number] = selection
     }
 }

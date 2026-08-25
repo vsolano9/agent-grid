@@ -10,7 +10,7 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 | Cursor Agent | `--yolo` |
 | Hermes Agent | `--yolo` |
 
-Every position is independent, so combinations such as four Codex sessions are supported. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
+Every position is independent, so combinations such as four Codex sessions or four Hermes Agent sessions are supported. AgentGrid remembers the four CLI choices separately for each numbered grid and restores them on later launches. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
 
 Before terminal setup appears, AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order. It installs a CLI only when its official version check reports a newer release, then repairs the stable launchers under `~/.local/bin` and verifies every launcher with `--version`. A failed check or update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
@@ -73,7 +73,7 @@ The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/Sw
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, quota history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads credentials from the existing Claude Keychain item, Grok auth file, Cursor read-only state database, and Codex app-server session only long enough to request current quota; secrets and provider payloads are never logged or persisted.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads credentials from the existing Claude Keychain item, Grok auth file, Cursor read-only state database, and Codex app-server session only long enough to request current quota; secrets and provider payloads are never logged or persisted.
 
 ## License
 

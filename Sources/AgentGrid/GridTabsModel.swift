@@ -27,10 +27,19 @@ final class GridTabsModel {
     private(set) var selectedID: AgentGridTab.ID
     private var nextNumber: Int
     private let defaultWorkspace: URL
+    private let selectionStore: any GridSelectionPersisting
 
-    init(defaultWorkspace: URL = WorkspaceLocator.workRoot) {
+    init(
+        defaultWorkspace: URL = WorkspaceLocator.workRoot,
+        selectionStore: any GridSelectionPersisting = UserDefaultsGridSelectionStore()
+    ) {
         self.defaultWorkspace = defaultWorkspace
-        let first = Self.makeDraft(number: 1, workspace: defaultWorkspace)
+        self.selectionStore = selectionStore
+        let first = Self.makeDraft(
+            number: 1,
+            workspace: defaultWorkspace,
+            selection: selectionStore.selection(forGrid: 1)
+        )
         grids = [first]
         selectedID = first.id
         nextNumber = 2
@@ -48,7 +57,11 @@ final class GridTabsModel {
     func addGrid() -> AgentGridTab? {
         guard canAdd else { return nil }
 
-        let grid = Self.makeDraft(number: nextNumber, workspace: defaultWorkspace)
+        let grid = Self.makeDraft(
+            number: nextNumber,
+            workspace: defaultWorkspace,
+            selection: selectionStore.selection(forGrid: nextNumber)
+        )
         nextNumber += 1
         grids.append(grid)
         selectedID = grid.id
@@ -72,6 +85,10 @@ final class GridTabsModel {
         grids[index].draftSelection = grids[index].draftSelection.replacingAgent(
             at: position,
             with: agent
+        )
+        selectionStore.save(
+            grids[index].draftSelection,
+            forGrid: grids[index].number
         )
     }
 
@@ -115,11 +132,15 @@ final class GridTabsModel {
         }
     }
 
-    private static func makeDraft(number: Int, workspace: URL) -> AgentGridTab {
+    private static func makeDraft(
+        number: Int,
+        workspace: URL,
+        selection: AgentGridSelection?
+    ) -> AgentGridTab {
         AgentGridTab(
             id: UUID(),
             number: number,
-            draftSelection: .standard,
+            draftSelection: selection ?? .standard,
             launchedSelection: nil,
             draftWorkingDirectory: workspace.standardizedFileURL,
             launchedWorkingDirectory: nil
