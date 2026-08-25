@@ -39,6 +39,7 @@ protocol CLICommandRunning: Sendable {
 
 enum CLIAliasError: Error, Equatable, Sendable {
     case noExecutable
+    case verificationFailed
     case destinationIsDirectory
     case selfReferentialTarget
     case fileSystem(String)
@@ -177,6 +178,7 @@ struct CLIMaintenanceService: Sendable {
         var entries: [CLIMaintenanceEntry] = []
 
         for item in plan.items {
+            if Task.isCancelled { break }
             await progress(
                 CLIMaintenanceProgress(
                     completedCount: entries.count,
@@ -253,6 +255,8 @@ struct CLIMaintenanceService: Sendable {
         switch error {
         case .noExecutable:
             "\(kind.displayName) executable could not be resolved"
+        case .verificationFailed:
+            "\(kind.displayName) executable did not pass --version"
         case .destinationIsDirectory:
             "\(kind.displayName) alias path is a directory"
         case .selfReferentialTarget:
@@ -272,6 +276,9 @@ extension CLIMaintenanceService: CLIMaintaining {
             base: baseEnvironment,
             homeDirectory: homeDirectory
         )
+        var maintenanceEnvironment = environment
+        maintenanceEnvironment.removeValue(forKey: "PYTHONHOME")
+        maintenanceEnvironment.removeValue(forKey: "PYTHONPATH")
         let resolver = BinaryResolver(
             environment: environment,
             homeDirectory: homeDirectory
@@ -285,12 +292,23 @@ extension CLIMaintenanceService: CLIMaintaining {
             npmExecutable: resolver.resolve("npm"),
             executableForKind: { cliLocator.locate($0) }
         )
+        let runner = CLICommandRunner(environment: maintenanceEnvironment)
         return Self(
             plan: plan,
-            runner: CLICommandRunner(environment: environment),
+            runner: runner,
             aliasStore: CanonicalCLIAliasStore(
                 homeDirectory: homeDirectory,
-                environment: environment
+                environment: environment,
+                verifiesExecutable: { executable in
+                    await runner.run(
+                        CLICommand(
+                            executable: executable,
+                            arguments: ["--version"],
+                            timeout: .seconds(20),
+                            capturesOutput: true
+                        )
+                    ).succeeded
+                }
             )
         )
     }

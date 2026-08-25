@@ -156,6 +156,27 @@ struct CLIMaintenanceTests {
         #expect(!partial.isLaunchable)
         #expect(!duplicates.isLaunchable)
     }
+
+    @Test("A pre-cancelled maintenance pass starts no updater")
+    func preCancelledPassStartsNothing() async {
+        let fixture = MaintenanceFixture(
+            updateOutcomes: Array(repeating: .exited(status: 0, output: ""), count: 5),
+            verificationOutcomes: Array(
+                repeating: .exited(status: 0, output: "1.0"),
+                count: 5
+            )
+        )
+        let task = Task {
+            await Task.yield()
+            return await fixture.service.perform()
+        }
+
+        task.cancel()
+        let report = await task.value
+
+        #expect(report.entries.isEmpty)
+        #expect(await fixture.runner.recordedCommands().isEmpty)
+    }
 }
 
 private actor ProgressRecorder {

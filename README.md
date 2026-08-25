@@ -12,7 +12,7 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 
 Every position is independent, so combinations such as four Codex sessions are supported. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
 
-Before terminal setup appears, AgentGrid updates Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order, repairs their stable aliases under `~/.local/bin`, and verifies every alias with `--version`. A failed update is shown as a warning when the installed command still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
+Before terminal setup appears, AgentGrid updates Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order, repairs their stable launchers under `~/.local/bin`, and verifies every launcher with `--version`. A failed update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
 ## Requirements
 

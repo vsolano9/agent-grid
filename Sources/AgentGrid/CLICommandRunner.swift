@@ -15,6 +15,7 @@ actor CLICommandRunner: CLICommandRunning {
     }
 
     func run(_ command: CLICommand) async -> CLICommandOutcome {
+        guard !Task.isCancelled else { return .cancelled }
         let spawned: SpawnedCommand
         do {
             spawned = try spawn(command)

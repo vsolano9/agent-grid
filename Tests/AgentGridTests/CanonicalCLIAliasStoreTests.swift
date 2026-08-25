@@ -199,7 +199,10 @@ struct CanonicalCLIAliasStoreTests {
             ".hermes/hermes-agent/venv/bin/hermes",
             isDirectory: false
         )
-        try fixture.makeExecutable(at: hermes)
+        try fixture.makeExecutable(
+            at: hermes,
+            contents: Data("#!/bin/sh\ntest -z \"${PYTHONHOME+x}\" && test -z \"${PYTHONPATH+x}\"\n".utf8)
+        )
         let store = CanonicalCLIAliasStore(
             homeDirectory: fixture.home,
             environment: ["PATH": ""]
@@ -207,7 +210,62 @@ struct CanonicalCLIAliasStoreTests {
 
         let alias = try await store.repairAlias(for: fixture.item(kind: .hermes))
 
-        #expect(try FileManager.default.destinationOfSymbolicLink(atPath: alias.path) == hermes.path)
+        #expect(!FileManager.default.isSymbolicLink(at: alias))
+        let outcome = await CLICommandRunner(
+            environment: ["PYTHONHOME": "/tmp", "PYTHONPATH": "/tmp"]
+        ).run(CLICommand(executable: alias, arguments: ["--version"]))
+        #expect(outcome.succeeded)
+    }
+
+    @Test("Store preserves a verified provider fallback when a new candidate is broken")
+    func preservesVerifiedFallback() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let candidate = try fixture.makeExecutable(named: "codex")
+        let fallback = fixture.root.appendingPathComponent("old/codex")
+        try fixture.makeExecutable(at: fallback)
+        let alias = fixture.alias(named: "codex")
+        try FileManager.default.createDirectory(
+            at: alias.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: fallback)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path],
+            verifiesExecutable: { $0 == alias }
+        )
+
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .codex))
+
+        #expect(candidate != fallback)
+        #expect(repaired.resolvingSymlinksInPath() == fallback.resolvingSymlinksInPath())
+    }
+
+    @Test("Store rejects a candidate symlink chain that depends on its alias")
+    func rejectsIndirectSelfReference() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let fallback = fixture.root.appendingPathComponent("old/codex")
+        try fixture.makeExecutable(at: fallback)
+        let alias = fixture.alias(named: "codex")
+        try FileManager.default.createDirectory(
+            at: alias.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: fallback)
+        try FileManager.default.createSymbolicLink(
+            at: fixture.tools.appendingPathComponent("codex"),
+            withDestinationURL: alias
+        )
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
+
+        await #expect(throws: CLIAliasError.selfReferentialTarget) {
+            try await store.repairAlias(for: fixture.item(kind: .codex))
+        }
     }
 }
 
@@ -243,12 +301,12 @@ private struct AliasFixture {
         return url
     }
 
-    func makeExecutable(at url: URL) throws {
+    func makeExecutable(at url: URL, contents: Data = Data("fixture".utf8)) throws {
         try FileManager.default.createDirectory(
             at: url.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
-        #expect(FileManager.default.createFile(atPath: url.path, contents: Data("fixture".utf8)))
+        #expect(FileManager.default.createFile(atPath: url.path, contents: contents))
         try FileManager.default.setAttributes(
             [.posixPermissions: 0o755],
             ofItemAtPath: url.path

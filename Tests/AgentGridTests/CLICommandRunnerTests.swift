@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import Testing
 @testable import AgentGrid
@@ -76,32 +77,74 @@ struct CLICommandRunnerTests {
         #expect(await task.value == .cancelled)
     }
 
-    @Test("Timeout terminates updater descendants before they can mutate files")
-    func timeoutTerminatesDescendants() async throws {
+    @Test("A pre-cancelled task never starts its command")
+    func preCancelledTaskDoesNotSpawn() async throws {
+        let sentinel = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "AgentGridPreCancelled-\(UUID().uuidString)"
+        )
+        defer { try? FileManager.default.removeItem(at: sentinel) }
+        let runner = CLICommandRunner(environment: [:])
+        let task = Task {
+            await Task.yield()
+            return await runner.run(
+                CLICommand(
+                    executable: URL(fileURLWithPath: "/usr/bin/touch"),
+                    arguments: [sentinel.path]
+                )
+            )
+        }
+
+        task.cancel()
+
+        #expect(await task.value == .cancelled)
+        #expect(!FileManager.default.fileExists(atPath: sentinel.path))
+    }
+
+    @Test("Cancellation synchronously terminates a ready updater descendant")
+    func cancellationTerminatesDescendants() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
             "AgentGridRunnerTree-\(UUID().uuidString)",
             isDirectory: true
         )
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
+        let childPIDFile = root.appendingPathComponent("child-pid")
+        let childReady = root.appendingPathComponent("child-ready")
         let sentinel = root.appendingPathComponent("survived")
         let runner = CLICommandRunner(environment: [:], pollInterval: .milliseconds(5))
 
-        let result = await runner.run(
-            CLICommand(
-                executable: URL(fileURLWithPath: "/bin/sh"),
-                arguments: [
-                    "-c",
-                    "(trap '' HUP TERM; sleep 0.15; /usr/bin/touch \"$1\") & sleep 5",
-                    "agentgrid-test",
-                    sentinel.path,
-                ],
-                timeout: .milliseconds(30)
+        let task = Task {
+            await runner.run(
+                CLICommand(
+                    executable: URL(fileURLWithPath: "/bin/sh"),
+                    arguments: [
+                        "-c",
+                        "/bin/sh -c 'trap \"\" HUP TERM; echo $$ > \"$1\"; /usr/bin/touch \"$2\"; /bin/sleep 5; /usr/bin/touch \"$3\"' agentgrid-child \"$1\" \"$2\" \"$3\" & /bin/sleep 5",
+                        "agentgrid-parent",
+                        childPIDFile.path,
+                        childReady.path,
+                        sentinel.path,
+                    ]
+                )
             )
-        )
+        }
 
-        try await Task.sleep(for: .milliseconds(300))
-        #expect(result == .timedOut)
+        for _ in 0..<200 where !FileManager.default.fileExists(atPath: childReady.path) {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        #expect(FileManager.default.fileExists(atPath: childReady.path))
+        let childPIDText = try String(contentsOf: childPIDFile, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let childPID = try #require(pid_t(childPIDText))
+
+        task.cancel()
+        #expect(await task.value == .cancelled)
+
+        for _ in 0..<200 where Darwin.kill(childPID, 0) == 0 {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+
+        #expect(Darwin.kill(childPID, 0) == -1 && errno == ESRCH)
         #expect(!FileManager.default.fileExists(atPath: sentinel.path))
     }
 }

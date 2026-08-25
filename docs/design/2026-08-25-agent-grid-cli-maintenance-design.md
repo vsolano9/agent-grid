@@ -26,7 +26,9 @@ Official owner documentation provides these update seams:
 
 `CLICommandRunner` is an actor that starts every command in its own POSIX process group. It polls cooperatively, terminates the complete group on cancellation or timeout, discards updater output, and captures only bounded version output. No process handle, pipe, or mutable runner state crosses an actor boundary.
 
-`CLIExecutableLocator` discovers each provider independently of `~/.local/bin`, including Grok's stable launcher, the newest installed Cursor Agent version, and Hermes Agent's managed virtual environment. `CanonicalCLIAliasStore` never trusts an existing canonical executable as proof of identity: it refuses to replace a directory, creates a fresh link beside the destination, and uses an atomic rename so terminals never observe a half-written link. Stable provider links remain indirect rather than being pinned to their current version target.
+`CLIExecutableLocator` discovers each provider independently of `~/.local/bin`, including Grok's stable launcher, the newest installed Cursor Agent version, and Hermes Agent's managed virtual environment. `CanonicalCLIAliasStore` never trusts an existing canonical executable as proof of identity: it preflights the discovered provider candidate, rejects link chains that depend on the destination alias, refuses to replace a directory, and uses an atomic rename so terminals never observe a half-written launcher. If a candidate fails verification, a provider-plausible previous symlink remains available only when it still passes `--version`. Stable provider links remain indirect rather than being pinned to their current version target.
+
+Hermes is the one canonical regular launcher rather than a symlink. AgentGrid preserves Nous Research's official launcher when it verifies, or atomically recreates an equivalent wrapper that unsets `PYTHONHOME` and `PYTHONPATH` before entering the managed virtual environment. Maintenance also removes those variables from updater subprocesses. This retains the installer's environment-isolation contract while still repairing a missing Hermes command.
 
 `CLIMaintenanceModel` is main-actor UI state. `AgentGridApp` starts its task once, renders an inline maintenance surface while work is active, and constructs `AgentGridConfiguration.live()` only from a launchable report. Retry performs a fresh complete pass. A warning is shown in the setup surface without a startup alert, following Apple's guidance to keep launch problems contextual and actionable.
 
@@ -51,6 +53,7 @@ The deep service is selected because the sequencing and fallback rules are the f
 - Grok, Cursor Agent, and Hermes Agent use their native update commands.
 - A failed update is a warning when the post-update canonical alias still passes `--version`.
 - Missing or failing aliases are blocking. Retry reruns all five updates rather than only the visible failure, preserving the every-launch contract.
+- Window/task cancellation terminates the active updater group and stops the transaction before any later updater begins; a subsequent launch starts a fresh complete transaction.
 - AgentGrid never edits shell startup files, authentication stores, CLI configuration, or credentials. The existing terminal environment already places `~/.local/bin` first.
 - Subprocesses receive the maintained terminal environment, no shell interpolation, no prompts, a bounded timeout, and an isolated process group that is fully terminated on timeout or cancellation.
 
