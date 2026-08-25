@@ -5,6 +5,7 @@ struct AgentGridWorkspaceView: View {
     let isWindowPrepared: Bool
     let maintenanceWarnings: [AgentKind]
     let usage: CLIUsageModel
+    let refreshUsage: () -> Void
 
     @State private var tabs: GridTabsModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -15,12 +16,14 @@ struct AgentGridWorkspaceView: View {
         configuration: AgentGridConfiguration,
         isWindowPrepared: Bool,
         maintenanceWarnings: [AgentKind] = [],
-        usage: CLIUsageModel
+        usage: CLIUsageModel,
+        refreshUsage: @escaping () -> Void
     ) {
         self.configuration = configuration
         self.isWindowPrepared = isWindowPrepared
         self.maintenanceWarnings = maintenanceWarnings
         self.usage = usage
+        self.refreshUsage = refreshUsage
         _tabs = State(
             initialValue: GridTabsModel(defaultWorkspace: configuration.workspace)
         )
@@ -66,16 +69,11 @@ struct AgentGridWorkspaceView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             CLIUsageBar(
-                entries: usage.entries,
+                snapshots: usage.snapshots,
                 isRefreshing: usage.isRefreshing,
                 refresh: refreshUsage
             )
         }
         .background(Color(red: 0, green: 0, blue: 0))
-        .task { await usage.start() }
-    }
-
-    private func refreshUsage() {
-        Task { await usage.refresh() }
     }
 }

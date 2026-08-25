@@ -12,6 +12,14 @@ enum WindowFramePolicy {
 @Observable
 final class AgentGridWindowState {
     var isPrepared = false
+    @ObservationIgnored weak var mainWindow: NSWindow?
+
+    var isVisibleNormalWindow: Bool {
+        guard let mainWindow else { return false }
+        return mainWindow.isVisible
+            && !mainWindow.isMiniaturized
+            && mainWindow.styleMask.contains(.titled)
+    }
 }
 
 struct WindowMaximizer: NSViewRepresentable {
@@ -39,6 +47,7 @@ struct WindowMaximizer: NSViewRepresentable {
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
+            state.mainWindow = window
             guard hasMaximized == false,
                   let window,
                   let screen = window.screen ?? NSScreen.main else {

@@ -15,8 +15,8 @@ actor CursorUsageReader: ProviderQuotaReading {
         self.transport = transport
     }
 
-    func fetchRemainingPercent() async throws -> Int {
-        let token = try accessTokenLoader.loadAccessToken()
+    func fetchObservation() async throws -> ProviderUsageObservation {
+        let token = try await accessTokenLoader.loadAccessToken()
         let cookie = try CursorAuthTokenParser.cookieHeader(accessToken: token)
         guard let url = URL(string: "https://cursor.com/api/usage-summary") else {
             throw ProviderUsageError.invalidResponse
@@ -30,15 +30,33 @@ actor CursorUsageReader: ProviderQuotaReading {
         guard response.statusCode == 200 else {
             throw ProviderUsageError.httpStatus(response.statusCode)
         }
-        return try CursorUsageParser.remainingPercent(from: response.data)
+        return try CursorUsageParser.parseObservation(from: response.data)
     }
 }
 
 struct CursorAccessTokenStore: ProviderAccessTokenLoading {
+    static let protectedResource = "Cursor credentials"
+
     let environment: [String: String]
     let homeDirectory: URL
+    private let databaseAccessTokenLoader: @Sendable (URL) throws -> String
+    private let permissionReporter: (any ProtectedFileAccessReporting)?
 
-    func loadAccessToken() throws -> String {
+    init(
+        environment: [String: String],
+        homeDirectory: URL,
+        databaseAccessTokenLoader: @escaping @Sendable (URL) throws -> String = {
+            try Self.readAccessToken(from: $0)
+        },
+        permissionReporter: (any ProtectedFileAccessReporting)? = nil
+    ) {
+        self.environment = environment
+        self.homeDirectory = homeDirectory
+        self.databaseAccessTokenLoader = databaseAccessTokenLoader
+        self.permissionReporter = permissionReporter
+    }
+
+    func loadAccessToken() async throws -> String {
         let database: URL
         if let custom = environment["CURSOR_USER_DATA_DIR"], !custom.isEmpty {
             database = URL(fileURLWithPath: (custom as NSString).expandingTildeInPath)
@@ -48,11 +66,26 @@ struct CursorAccessTokenStore: ProviderAccessTokenLoading {
                 .appendingPathComponent("Library/Application Support/Cursor/User/globalStorage/state.vscdb")
         }
 
+        do {
+            let token = try databaseAccessTokenLoader(database)
+            await permissionReporter?.fileOperationSucceeded(resource: Self.protectedResource)
+            return token
+        } catch {
+            await permissionReporter?.fileOperationFailed(error, resource: Self.protectedResource)
+            throw error
+        }
+    }
+
+    private static func readAccessToken(from database: URL) throws -> String {
         var handle: OpaquePointer?
         let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_FULLMUTEX
         let openResult = sqlite3_open_v2(database.path, &handle, flags, nil)
         guard openResult == SQLITE_OK, let handle else {
+            let systemError = handle.map(sqlite3_system_errno) ?? 0
             if handle != nil { sqlite3_close(handle) }
+            if systemError == EACCES || systemError == EPERM {
+                throw NSError(domain: NSPOSIXErrorDomain, code: Int(systemError))
+            }
             throw ProviderUsageError.database(openResult)
         }
         defer { sqlite3_close(handle) }
@@ -103,7 +136,10 @@ enum CursorAuthTokenParser {
 }
 
 enum CursorUsageParser {
-    static func remainingPercent(from data: Data) throws -> Int {
+    static func parseObservation(
+        from data: Data,
+        fetchedAt: Date = Date()
+    ) throws -> ProviderUsageObservation {
         guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw ProviderUsageError.invalidResponse
         }
@@ -113,30 +149,92 @@ enum CursorUsageParser {
         let team = root["teamUsage"] as? [String: Any]
         let pooled = team?["pooled"] as? [String: Any]
 
-        let usedPercent: Double?
-        if let total = number(plan?["totalPercentUsed"]) {
-            usedPercent = total
-        } else if let auto = number(plan?["autoPercentUsed"]),
-                  let api = number(plan?["apiPercentUsed"]) {
-            usedPercent = (auto + api) / 2
-        } else if let api = number(plan?["apiPercentUsed"]) {
-            usedPercent = api
-        } else if let auto = number(plan?["autoPercentUsed"]) {
-            usedPercent = auto
+        let resetValue = root["billingCycleEnd"]
+        let reset = ProviderUsageJSON.iso8601Date(resetValue)
+        let resetIsMalformed = ProviderUsageJSON.hasMalformedDate(resetValue)
+        var observations: [ProviderUsageWindowObservation] = []
+        let usesPoolWindows = plan?.keys.contains("autoPercentUsed") == true
+            || plan?.keys.contains("apiPercentUsed") == true
+        if usesPoolWindows {
+            observations.append(.removed(ProviderUsageWindowID(provider: .cursor, key: "monthly")))
+            for (field, key, label) in [
+                ("autoPercentUsed", "cursor_models", "Cursor Models"),
+                ("apiPercentUsed", "other_models", "Other Models"),
+            ] {
+                let id = ProviderUsageWindowID(provider: .cursor, key: key)
+                guard let raw = plan?[field] else {
+                    observations.append(.failed(
+                        id: id,
+                        reason: "Cursor \(label.lowercased()) quota was missing."
+                    ))
+                    continue
+                }
+                if raw is NSNull {
+                    observations.append(.removed(id))
+                    continue
+                }
+                guard let percent = ProviderUsageJSON.number(raw),
+                      percent.isFinite,
+                      !resetIsMalformed else {
+                    observations.append(.failed(
+                        id: id,
+                        reason: "Cursor \(label.lowercased()) quota was malformed."
+                    ))
+                    continue
+                }
+                observations.append(try available(
+                    key: key,
+                    label: label,
+                    usedPercent: percent,
+                    resetsAt: reset
+                ))
+            }
         } else {
-            usedPercent = ratio(in: plan) ?? ratio(in: overall) ?? ratio(in: pooled)
+            let pooledIsApplicable = pooled?["enabled"] as? Bool == true
+            let composite = ProviderUsageJSON.number(plan?["totalPercentUsed"])
+                ?? ratio(in: plan)
+                ?? ratio(in: overall)
+                ?? (pooledIsApplicable ? ratio(in: pooled) : nil)
+            guard let composite, composite.isFinite else {
+                throw ProviderUsageError.missingQuota
+            }
+            observations.append(.removed(ProviderUsageWindowID(provider: .cursor, key: "cursor_models")))
+            observations.append(.removed(ProviderUsageWindowID(provider: .cursor, key: "other_models")))
+            let monthlyID = ProviderUsageWindowID(provider: .cursor, key: "monthly")
+            if resetIsMalformed {
+                observations.append(.failed(
+                    id: monthlyID,
+                    reason: "Cursor monthly quota was malformed."
+                ))
+            } else {
+                observations.append(try available(
+                    key: "monthly",
+                    label: "Monthly",
+                    usedPercent: composite,
+                    resetsAt: reset
+                ))
+            }
         }
-        guard let usedPercent else { throw ProviderUsageError.missingQuota }
-        return try ProviderUsageMath.remainingPercent(usedPercent: usedPercent)
+        return ProviderUsageObservation(windows: observations, fetchedAt: fetchedAt)
+    }
+
+    private static func available(
+        key: String,
+        label: String,
+        usedPercent: Double,
+        resetsAt: Date?
+    ) throws -> ProviderUsageWindowObservation {
+        .available(ProviderUsageWindowValue(
+            id: ProviderUsageWindowID(provider: .cursor, key: key),
+            label: label,
+            remainingPercent: try ProviderUsageMath.remainingPercent(usedPercent: usedPercent),
+            resetsAt: resetsAt
+        ))
     }
 
     private static func ratio(in value: [String: Any]?) -> Double? {
-        guard let used = number(value?["used"]),
-              let limit = number(value?["limit"]), limit > 0 else { return nil }
+        guard let used = ProviderUsageJSON.number(value?["used"]),
+              let limit = ProviderUsageJSON.number(value?["limit"]), limit > 0 else { return nil }
         return used / limit * 100
-    }
-
-    private static func number(_ value: Any?) -> Double? {
-        (value as? NSNumber)?.doubleValue
     }
 }

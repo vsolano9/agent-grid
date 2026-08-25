@@ -14,20 +14,43 @@ final class CLIMaintenanceModel {
     private(set) var phase: CLIMaintenancePhase = .idle
     private(set) var configuration: AgentGridConfiguration?
 
-    private let service: any CLIMaintaining
+    private let serviceFactory: @Sendable () async -> (any CLIMaintaining)?
     private let configurationFactory: @MainActor @Sendable () -> AgentGridConfiguration
 
     init(
         service: any CLIMaintaining,
         configurationFactory: @escaping @MainActor @Sendable () -> AgentGridConfiguration
     ) {
-        self.service = service
+        serviceFactory = { service }
         self.configurationFactory = configurationFactory
     }
 
-    convenience init() {
+    private init(
+        serviceFactory: @escaping @Sendable () async -> (any CLIMaintaining)?,
+        configurationFactory: @escaping @MainActor @Sendable () -> AgentGridConfiguration
+    ) {
+        self.serviceFactory = serviceFactory
+        self.configurationFactory = configurationFactory
+    }
+
+    convenience init(
+        liveBaseEnvironment: [String: String] = ProcessInfo.processInfo.environment,
+        liveHomeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        directoryContents: @escaping @Sendable (URL) -> [URL] = {
+            (try? FileManager.default.contentsOfDirectory(
+                at: $0,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )) ?? []
+        }
+    ) {
+        let loader = LiveCLIMaintenanceServiceLoader(
+            baseEnvironment: liveBaseEnvironment,
+            homeDirectory: liveHomeDirectory,
+            directoryContents: directoryContents
+        )
         self.init(
-            service: CLIMaintenanceService.live(),
+            serviceFactory: { await loader.load() },
             configurationFactory: { AgentGridConfiguration.live() }
         )
     }
@@ -63,6 +86,10 @@ final class CLIMaintenanceModel {
             )
         )
 
+        guard let service = await serviceFactory(), !Task.isCancelled else {
+            phase = .idle
+            return
+        }
         let report = await service.perform { [weak self] progress in
             await MainActor.run {
                 self?.phase = .running(progress)
@@ -79,5 +106,31 @@ final class CLIMaintenanceModel {
         } else {
             phase = .failed(report)
         }
+    }
+}
+
+private actor LiveCLIMaintenanceServiceLoader {
+    private let baseEnvironment: [String: String]
+    private let homeDirectory: URL
+    private let directoryContents: @Sendable (URL) -> [URL]
+
+    init(
+        baseEnvironment: [String: String],
+        homeDirectory: URL,
+        directoryContents: @escaping @Sendable (URL) -> [URL]
+    ) {
+        self.baseEnvironment = baseEnvironment
+        self.homeDirectory = homeDirectory
+        self.directoryContents = directoryContents
+    }
+
+    func load() -> (any CLIMaintaining)? {
+        guard !Task.isCancelled else { return nil }
+        let service = CLIMaintenanceService.live(
+            baseEnvironment: baseEnvironment,
+            homeDirectory: homeDirectory,
+            directoryContents: directoryContents
+        )
+        return Task.isCancelled ? nil : service
     }
 }

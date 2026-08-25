@@ -498,7 +498,14 @@ private enum AliasVerificationResult {
 extension CLIMaintenanceService: CLIMaintaining {
     static func live(
         baseEnvironment: [String: String] = ProcessInfo.processInfo.environment,
-        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        directoryContents: @escaping @Sendable (URL) -> [URL] = {
+            (try? FileManager.default.contentsOfDirectory(
+                at: $0,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )) ?? []
+        }
     ) -> Self {
         let environment = TerminalEnvironment.make(
             base: baseEnvironment,
@@ -513,7 +520,8 @@ extension CLIMaintenanceService: CLIMaintaining {
         )
         let cliLocator = CLIExecutableLocator(
             homeDirectory: homeDirectory,
-            environment: environment
+            environment: environment,
+            directoryContents: directoryContents
         )
         let plan = CLIMaintenancePlan.make(
             homeDirectory: homeDirectory,

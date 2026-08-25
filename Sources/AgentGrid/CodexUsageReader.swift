@@ -9,8 +9,8 @@ actor CodexUsageReader: ProviderQuotaReading {
         self.environment = environment
     }
 
-    func fetchRemainingPercent() async throws -> Int {
-        try await withThrowingTaskGroup(of: Int.self) { group in
+    func fetchObservation() async throws -> ProviderUsageObservation {
+        try await withThrowingTaskGroup(of: ProviderUsageObservation.self) { group in
             group.addTask { try await self.readFromAppServer() }
             group.addTask {
                 try await Task.sleep(for: .seconds(8))
@@ -25,7 +25,7 @@ actor CodexUsageReader: ProviderQuotaReading {
         }
     }
 
-    private func readFromAppServer() async throws -> Int {
+    private func readFromAppServer() async throws -> ProviderUsageObservation {
         let process = Process()
         let input = Pipe()
         let output = Pipe()
@@ -71,7 +71,7 @@ actor CodexUsageReader: ProviderQuotaReading {
                     to: input.fileHandleForWriting
                 )
             } else if envelope.id == 2 {
-                return try CodexUsageResponseParser.parse(line)
+                return try CodexUsageResponseParser.parseObservation(line)
             }
         }
 

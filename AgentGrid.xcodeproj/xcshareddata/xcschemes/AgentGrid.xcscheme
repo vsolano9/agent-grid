@@ -35,6 +35,20 @@
                ReferencedContainer = "container:AgentGrid.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CA6E440FE134365DC64D3950"
+               BuildableName = "FakeGrokACP"
+               BlueprintName = "FakeGrokACP"
+               ReferencedContainer = "container:AgentGrid.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

@@ -1,98 +1,82 @@
 import SwiftUI
 
 struct CLIUsageSegment: View {
-    let entry: CLIUsageEntry
-    let animationDelay: Double
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    let snapshot: ProviderUsageSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 7) {
-                Text(shortName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        HStack(spacing: 5) {
+            Text(ProviderUsagePresentation.providerName(snapshot.provider))
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
 
-                Spacer(minLength: 4)
-
-                value
+            if let warning = ProviderUsagePresentation.warning(for: snapshot) {
+                Image(systemName: warning.systemImage)
+                    .font(.system(size: 7, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .help(warning.accessibilityLabel)
+                    .accessibilityLabel(warning.accessibilityLabel)
             }
 
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.1))
-                    Capsule()
-                        .fill(Color(red: 0.92, green: 0.45, blue: 0.12))
-                        .frame(width: proxy.size.width * fillFraction)
+            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 1) {
+                ForEach(rows) { row in
+                    ProviderUsageWindowRowView(row: row)
                 }
             }
-            .frame(height: 2)
         }
-        .padding(.horizontal, 12)
-        .frame(maxWidth: .infinity, minHeight: 40)
-        .help(helpText)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityText)
-        .animation(
-            reduceMotion ? nil : .easeOut(duration: 0.18).delay(animationDelay),
-            value: fillFraction
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(ProviderUsagePresentation.providerName(snapshot.provider)) usage")
+    }
+
+    private var rows: [ProviderUsageRow] {
+        ProviderUsagePresentation.rows(for: snapshot)
+    }
+
+    private var gridColumns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(minimum: 0), spacing: 6, alignment: .top),
+            count: max(1, (rows.count + 1) / 2)
         )
+    }
+
+}
+
+private struct ProviderUsageWindowRowView: View {
+    let row: ProviderUsageRow
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 3) {
+            Text(row.label)
+                .font(.system(size: 8))
+                .foregroundStyle(row.isStale ? .tertiary : .secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .truncationMode(.tail)
+                .layoutPriority(1)
+
+            value
+        }
+        .frame(height: 11)
+        .help(row.helpText)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(row.accessibilityLabel)
     }
 
     @ViewBuilder
     private var value: some View {
-        switch entry.state {
-        case .loading:
-            if reduceMotion {
-                Text("…")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
-            } else {
-                ProgressView()
-                    .controlSize(.mini)
-            }
-        case let .available(remainingPercent):
-            Text("\(remainingPercent)% left")
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.primary)
-        case let .stale(remainingPercent, _):
-            Text("\(remainingPercent)% left")
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-        case .unavailable:
-            Text("—")
-                .font(.caption.monospacedDigit())
+        if row.isLoading {
+            Text("Loading")
+                .font(.system(size: 8))
                 .foregroundStyle(.tertiary)
+        } else {
+            Text(row.valueText)
+                .font(.system(size: 8, design: .monospaced))
+                .foregroundStyle(row.isStale || row.isUnavailable ? .secondary : .primary)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
     }
-
-    private var shortName: String {
-        switch entry.kind {
-        case .cursor: "Cursor"
-        case .hermes: "Hermes"
-        default: entry.kind.displayName
-        }
-    }
-
-    private var fillFraction: Double {
-        switch entry.state {
-        case let .available(remainingPercent), let .stale(remainingPercent, _):
-            return Double(min(max(remainingPercent, 0), 100)) / 100
-        case .loading, .unavailable:
-            return 0
-        }
-    }
-
-    private var helpText: String {
-        switch entry.state {
-        case .loading: "Refreshing \(shortName) account quota."
-        case let .available(remainingPercent):
-            "\(shortName) account quota: \(remainingPercent) percent remaining."
-        case let .stale(remainingPercent, reason):
-            "\(shortName) account quota: \(remainingPercent) percent remaining from the last successful refresh. \(reason)"
-        case let .unavailable(reason): reason
-        }
-    }
-
-    private var accessibilityText: String { helpText }
 }

@@ -1,5 +1,7 @@
 # AgentGrid
 
+Current local release: **1.3.4 (9)**.
+
 AgentGrid is a lightweight native macOS app that opens four real terminal sessions in each grid of one maximized window. On launch—and whenever a new grid is created—you choose the CLI for each position:
 
 | CLI | Auto-approval mode |
@@ -14,7 +16,11 @@ Every position is independent, so combinations such as four Codex sessions or fo
 
 Before terminal setup appears, AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order. It installs a CLI only when its official version check reports a newer release, then repairs the stable launchers under `~/.local/bin` and verifies every launcher with `--version`. A failed check or update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
-A compact rail along the bottom shows live account quota remaining for Codex, Claude, Grok, and Cursor, such as `Codex 55% left`. AgentGrid reads the same authenticated local state used by each installed client, requests each provider's account-level usage endpoint in parallel, and keeps the last successful value visibly stale if a later refresh fails. Claude reports the most constrained active window so the single percentage never hides a tighter weekly or model-specific limit. Hermes is intentionally absent because it routes work through those underlying providers rather than owning a comparable account quota. The refresh button requests a fresh reading.
+A 32-point four-column status strip along the bottom shows the label and remaining percentage for every meaningful account quota window returned by Codex, Claude, Grok, and Cursor, using at most two compact lines. This includes Codex primary and secondary windows, Claude account and named-model windows, Grok included and enabled on-demand quotas, and Cursor's separate Cursor Models and Other Models pools or its applicable legacy monthly pool. Reset, last-updated, and failure detail remain available in each row's tooltip and accessibility label instead of consuming workspace height. Stale and unavailable providers also show an explicit warning marker; loading and unavailable text remain explicit. Hermes is intentionally absent because it routes work through underlying providers rather than owning a comparable account quota.
+
+Usage refreshes immediately at launch, every 60 seconds while AgentGrid is active, and immediately after activation, workspace or screen wake, and network recovery. Periodic reads suspend while inactive. Concurrent triggers coalesce, and provider-local failures back off independently without suppressing healthy providers. The refresh button requests a fresh reading within the same coalescing and backoff policy.
+
+Focus Retention is enabled by default. It rejects short-lived programmatic attempts to steal the active AgentGrid window while leaving explicit clicks and Command-Tab app switches alone. Use **Focus → Allow Next App Switch** (`⌃⌥⌘A`) for the next intentional switch or **Focus → Disable Focus Retention** (`⌃⌥⌘F`) to turn retention off. AgentGrid uses modern cooperative AppKit activation and never the deprecated force-activation API.
 
 ## Requirements
 
@@ -69,11 +75,22 @@ After a Release build, verify that Xcode compiled the icon and asset catalog:
 scripts/verify-app-icon.sh /path/to/AgentGrid.app
 ```
 
+Local Release builds use the exact Apple Development identity `Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)` with certificate team identifier `9UKJNG8B38`, hardened runtime, the fixed bundle ID, and no App Sandbox. (`RC5PWHKSF3` is part of the certificate label, not its TeamIdentifier.) Verify a Release before installation, then use the recoverable fixed-path installer:
+
+```bash
+scripts/verify-local-release-signing.sh /path/to/AgentGrid.app
+scripts/verify-local-release-pair.sh /path/to/build-a/AgentGrid.app /path/to/build-b/AgentGrid.app
+scripts/install-local-release.sh /path/to/AgentGrid.app
+scripts/verify-local-release-signing.sh --installed /Users/victor/Applications/AgentGrid.app
+```
+
+The installer preserves the previous bundle at `/Users/victor/Applications/AgentGrid.app.previous` until postflight is complete. AgentGrid checks Accessibility quietly at launch and app activation; it never prompts or opens System Settings without an explicit click. Accessibility only extends focus-intent detection to global keyboard events; local keyboard intent, outside mouse intent, and **Allow Next App Switch** remain available without it. The first move from the older ad-hoc build to this stable identity may require one user-approved permission migration. AgentGrid cannot grant itself Full Disk Access and reports protected-file readiness only after an actual required provider credential/config read returns `EPERM` or `EACCES`; a successful retry clears that issue. Apple Development signing is stable for this Mac and preserves the app's designated identity across local updates, but it is not notarized distribution signing and cannot bypass macOS consent.
+
 The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm) to version 1.20.0. Provider usage integration was informed by the MIT-licensed [CodexBar](https://github.com/steipete/CodexBar); attribution is retained in `THIRD_PARTY_NOTICES.md`. CI is intentionally local-only.
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads credentials from the existing Claude Keychain item, Grok auth file, Cursor read-only state database, and Codex app-server session only long enough to request current quota; secrets and provider payloads are never logged or persisted.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail uses the existing Claude Keychain item, Cursor's read-only state database, the authenticated Codex app-server session, and the installed Grok CLI's canonical ACP billing method (`initialize`, then `_x.ai/billing`). AgentGrid never refreshes or rewrites Claude-owned OAuth credentials: an expired login or usage 401 is shown as a sanitized instruction to run `/login` in Claude Code, while any last-good Claude quota remains stale. AgentGrid does not read Grok credentials directly, and secrets and provider payloads are never logged or persisted.
 
 ## License
 

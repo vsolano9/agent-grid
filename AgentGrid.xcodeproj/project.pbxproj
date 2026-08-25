@@ -7,37 +7,53 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A5555E62E34AFD569299FF1 /* CLIUsageRefreshCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F14F51991780CA9D3AD601 /* CLIUsageRefreshCoordinatorTests.swift */; };
 		1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */; };
 		1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685FA8FB5BD7537B088C907E /* GridTabsModel.swift */; };
+		114A088A19E27A742BE3DACD /* ProviderUsageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70337392D0FAC3394D6FFA19 /* ProviderUsageRow.swift */; };
 		11B6FC04A07AD7B3DEEB213D /* CLIExecutableLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E0CE809F5605D5610C792F /* CLIExecutableLocator.swift */; };
 		1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */; };
+		14A271D6A1783EB750B4C09A /* ProgrammaticFocusStealCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7F911E06669EA7176EA7C0 /* ProgrammaticFocusStealCoordinatorTests.swift */; };
 		179603EA3FFE4B9ECA868BAC /* TerminalLaunchGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */; };
 		18707C42DD71D702540433E1 /* WindowMaximizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */; };
 		1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */; };
 		1F05A0ACD4998662419CCE2E /* CLIMaintenanceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */; };
+		20BC0AE36238831146F91231 /* PermissionReadinessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649DF32822112FFE6EF4D335 /* PermissionReadinessView.swift */; };
 		273354E844CF2237513A6FB6 /* CLIMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */; };
 		2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */; };
 		319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */; };
 		356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */; };
 		3B36C9CA1E35A8D21D8B7C7F /* GridSelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEC06A617F9BC724582D21D /* GridSelectionStore.swift */; };
+		44A88BC3357045FC648A9B8C /* CLIUsageBarLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E6C56E3F3285F208385635 /* CLIUsageBarLayoutTests.swift */; };
+		452FDEAF5EF4C892CB97F907 /* ApplicationFocusRetentionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB57ED0922387F14C5337C9E /* ApplicationFocusRetentionTests.swift */; };
+		47F3801DF999FED2C1E0508B /* PermissionReadinessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B813B5FE8ED118BE83E1526 /* PermissionReadinessTests.swift */; };
 		4B827AA880CB494F1583B089 /* LiveProviderUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456A324687C0257673524090 /* LiveProviderUsageTests.swift */; };
 		4E7FA73D4A2259D3A0DF8414 /* GrokUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F555B62641F408BE71AFA1 /* GrokUsageReader.swift */; };
+		50243B76A2494DDB39B2890E /* ApplicationFocusRetentionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86240560A23893FFAAA96C /* ApplicationFocusRetentionController.swift */; };
 		5279563EE574EB0A89E0B3E2 /* CodexUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */; };
 		53E24CDEAE71F8193861E67C /* CLIUsageState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */; };
 		5688B6C28ACED0BF917074C3 /* CLIUsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98F90953CEBE598A999445D /* CLIUsageBar.swift */; };
 		580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */; };
+		5B2AF43A0D117DBC258B2447 /* ProviderUsagePresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0FFE1209B5C613EF656C6E /* ProviderUsagePresentationTests.swift */; };
 		5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F09989D6485780AC62902D3D /* Assets.xcassets */; };
 		5F83DB4620E115F4EDB53916 /* ClaudeUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8C9F351E9C50D185FF1F86 /* ClaudeUsageReader.swift */; };
+		639ACEA1D842A71D26696816 /* ProviderUsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20969FE7E3E9FAAF8928D18A /* ProviderUsageSnapshot.swift */; };
 		697AD3D36B519764CF58F94B /* CLIUsageReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3AE6841314956AB4B7D399 /* CLIUsageReading.swift */; };
 		69971F67EBA862E96EB2D83C /* ProviderUsageHTTPTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C30A7E4045464891190F09 /* ProviderUsageHTTPTransport.swift */; };
 		69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */; };
 		6C395CB264094686EFE0F8F4 /* ProviderUsageReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7840CD26DF23F39C5BFE837 /* ProviderUsageReaderTests.swift */; };
+		6D165A199765464685BD231D /* CLIUsageRefreshButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B280A561414F5A601AE1F6 /* CLIUsageRefreshButton.swift */; };
+		723BB6ED5F939EF9C44262F5 /* FocusIntentMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88AA4C2D28AC1A467FFF1F8 /* FocusIntentMonitor.swift */; };
 		7956F5D4A5C975C03BD96944 /* CLIUsageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */; };
 		7CA1CDE8289438DDE975850A /* CLIUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */; };
 		8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3267808F54D7281E9B2925 /* AgentGridApp.swift */; };
 		8AE78E5355EF6CE20CD753D0 /* CursorUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72079CB76B2BD39BC788D16 /* CursorUsageReader.swift */; };
 		97205B21CEE9AD9075D98B0D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C1FE0C2DECE3394E9EBD1325 /* libsqlite3.tbd */; };
+		9C334E638AB9DA04C17F7FAF /* ProgrammaticFocusStealCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DF44E84D97CD94322EA6A9 /* ProgrammaticFocusStealCoordinator.swift */; };
 		9FF2A10301CD371C6FFE3D2B /* CodexUsageResponseParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */; };
+		A0A6F9ABB1DB346474C41090 /* UsageLifecycleMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC0BD34CD433D34E2E7B560 /* UsageLifecycleMonitor.swift */; };
+		A4999E1642E346A827E63744 /* CLIUsageRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9730D9A3941CD5C54F9AD /* CLIUsageRefreshCoordinator.swift */; };
+		B13E87E18A98A2384FFF5DC0 /* PermissionReadiness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3E0CCB25DBAF06A1D8CCC /* PermissionReadiness.swift */; };
 		B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D973387604B7B18995BF892F /* RuntimePolicy.swift */; };
 		B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */; };
 		B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */; };
@@ -52,7 +68,11 @@
 		D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF08C99234A7699DEAF178FF /* GridTabStrip.swift */; };
 		D9EA5FB034E56E7768FE88B9 /* CLIMaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */; };
 		E70D7A9406287AE53B6D63ED /* GridSelectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DACA14DE9C6EEE011D9AE4B7 /* GridSelectionStoreTests.swift */; };
+		EAE7BC797A5A423E20E9053D /* GrokACPUsageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7724E8DC4608FF5A785C920C /* GrokACPUsageClient.swift */; };
+		EB4814652D4B7581BB431357 /* FocusStealFixtureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D7ED5E9720ADE1B06717F7 /* FocusStealFixtureApp.swift */; };
+		EC4F2CCFA3785CFC3F0FB68C /* ProgrammaticFocusStealCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DF44E84D97CD94322EA6A9 /* ProgrammaticFocusStealCoordinator.swift */; };
 		EF282CAB1C8E49A0839507AA /* RuntimePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */; };
+		F6B33706C8C4D65801B17F69 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5666D5A729ADB07681815B /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,33 +83,54 @@
 			remoteGlobalIDString = FC0556FE73BB7094F652B88F;
 			remoteInfo = AgentGrid;
 		};
+		B0ACD71C3B4B4757CE995C13 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C3BD893136229B12BEC9930 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA6E440FE134365DC64D3950;
+			remoteInfo = FakeGrokACP;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		07C30A7E4045464891190F09 /* ProviderUsageHTTPTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsageHTTPTransport.swift; sourceTree = "<group>"; };
 		07E0CE809F5605D5610C792F /* CLIExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIExecutableLocator.swift; sourceTree = "<group>"; };
+		0A86240560A23893FFAAA96C /* ApplicationFocusRetentionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationFocusRetentionController.swift; sourceTree = "<group>"; };
+		0EC3E0CCB25DBAF06A1D8CCC /* PermissionReadiness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionReadiness.swift; sourceTree = "<group>"; };
+		13DF44E84D97CD94322EA6A9 /* ProgrammaticFocusStealCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammaticFocusStealCoordinator.swift; sourceTree = "<group>"; };
 		1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchSpec.swift; sourceTree = "<group>"; };
 		17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStoreTests.swift; sourceTree = "<group>"; };
 		1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStore.swift; sourceTree = "<group>"; };
 		1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryResolverTests.swift; sourceTree = "<group>"; };
+		20969FE7E3E9FAAF8928D18A /* ProviderUsageSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsageSnapshot.swift; sourceTree = "<group>"; };
 		232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLaunchGate.swift; sourceTree = "<group>"; };
 		2A8C9F351E9C50D185FF1F86 /* ClaudeUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeUsageReader.swift; sourceTree = "<group>"; };
+		2D7F911E06669EA7176EA7C0 /* ProgrammaticFocusStealCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammaticFocusStealCoordinatorTests.swift; sourceTree = "<group>"; };
 		3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunner.swift; sourceTree = "<group>"; };
 		319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageReader.swift; sourceTree = "<group>"; };
 		3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceTests.swift; sourceTree = "<group>"; };
 		389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunnerTests.swift; sourceTree = "<group>"; };
 		3CEC06A617F9BC724582D21D /* GridSelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSelectionStore.swift; sourceTree = "<group>"; };
 		456A324687C0257673524090 /* LiveProviderUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveProviderUsageTests.swift; sourceTree = "<group>"; };
+		4B813B5FE8ED118BE83E1526 /* PermissionReadinessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionReadinessTests.swift; sourceTree = "<group>"; };
+		521FF4E6449501636CB018BD /* FocusStealFixture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusStealFixture.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		56B280A561414F5A601AE1F6 /* CLIUsageRefreshButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageRefreshButton.swift; sourceTree = "<group>"; };
 		5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentGridWorkspaceView.swift; sourceTree = "<group>"; };
 		5F46F0467A85F0704DEEC72E /* AgentGrid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgentGrid.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		649DF32822112FFE6EF4D335 /* PermissionReadinessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionReadinessView.swift; sourceTree = "<group>"; };
 		685FA8FB5BD7537B088C907E /* GridTabsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabsModel.swift; sourceTree = "<group>"; };
+		68F14F51991780CA9D3AD601 /* CLIUsageRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
 		6A3267808F54D7281E9B2925 /* AgentGridApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentGridApp.swift; sourceTree = "<group>"; };
 		6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceModel.swift; sourceTree = "<group>"; };
+		6FC0BD34CD433D34E2E7B560 /* UsageLifecycleMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageLifecycleMonitor.swift; sourceTree = "<group>"; };
+		70337392D0FAC3394D6FFA19 /* ProviderUsageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsageRow.swift; sourceTree = "<group>"; };
 		719FC54600DCD272460660EC /* AgentGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgentGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabsModelTests.swift; sourceTree = "<group>"; };
+		7724E8DC4608FF5A785C920C /* GrokACPUsageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokACPUsageClient.swift; sourceTree = "<group>"; };
 		7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLaunchGateTests.swift; sourceTree = "<group>"; };
 		7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalPane.swift; sourceTree = "<group>"; };
 		7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryResolver.swift; sourceTree = "<group>"; };
+		82E6C56E3F3285F208385635 /* CLIUsageBarLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageBarLayoutTests.swift; sourceTree = "<group>"; };
 		8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMaximizer.swift; sourceTree = "<group>"; };
 		8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicyTests.swift; sourceTree = "<group>"; };
 		8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageTests.swift; sourceTree = "<group>"; };
@@ -97,11 +138,15 @@
 		95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenance.swift; sourceTree = "<group>"; };
 		A72079CB76B2BD39BC788D16 /* CursorUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageReader.swift; sourceTree = "<group>"; };
 		B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceView.swift; sourceTree = "<group>"; };
+		B88AA4C2D28AC1A467FFF1F8 /* FocusIntentMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusIntentMonitor.swift; sourceTree = "<group>"; };
 		BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageState.swift; sourceTree = "<group>"; };
 		BF08C99234A7699DEAF178FF /* GridTabStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabStrip.swift; sourceTree = "<group>"; };
 		BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSetupView.swift; sourceTree = "<group>"; };
 		C1FE0C2DECE3394E9EBD1325 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		C44B9603151413A47C3F0FB2 /* CLIUsageSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageSegment.swift; sourceTree = "<group>"; };
+		C9A9730D9A3941CD5C54F9AD /* CLIUsageRefreshCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageRefreshCoordinator.swift; sourceTree = "<group>"; };
+		CB57ED0922387F14C5337C9E /* ApplicationFocusRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationFocusRetentionTests.swift; sourceTree = "<group>"; };
+		D2D7ED5E9720ADE1B06717F7 /* FocusStealFixtureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusStealFixtureApp.swift; sourceTree = "<group>"; };
 		D973387604B7B18995BF892F /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
 		D98F90953CEBE598A999445D /* CLIUsageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageBar.swift; sourceTree = "<group>"; };
 		DACA14DE9C6EEE011D9AE4B7 /* GridSelectionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSelectionStoreTests.swift; sourceTree = "<group>"; };
@@ -110,9 +155,12 @@
 		E6D8F6081C34369B072DB218 /* TerminalGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalGridView.swift; sourceTree = "<group>"; };
 		E7840CD26DF23F39C5BFE837 /* ProviderUsageReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsageReaderTests.swift; sourceTree = "<group>"; };
 		E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageResponseParser.swift; sourceTree = "<group>"; };
+		EB5666D5A729ADB07681815B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F09989D6485780AC62902D3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageModel.swift; sourceTree = "<group>"; };
 		FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceModelTests.swift; sourceTree = "<group>"; };
+		FCD7E6363C2334DFD67641D5 /* FakeGrokACP */ = {isa = PBXFileReference; includeInIndex = 0; path = FakeGrokACP; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD0FFE1209B5C613EF656C6E /* ProviderUsagePresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsagePresentationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +176,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		028324E8FBAA6B1C8944384B /* FocusStealFixture */ = {
+			isa = PBXGroup;
+			children = (
+				D2D7ED5E9720ADE1B06717F7 /* FocusStealFixtureApp.swift */,
+				13DF44E84D97CD94322EA6A9 /* ProgrammaticFocusStealCoordinator.swift */,
+			);
+			name = FocusStealFixture;
+			path = Tests/FocusStealFixture;
+			sourceTree = "<group>";
+		};
 		16DFCA110C9A506AD376501E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,15 +198,21 @@
 			isa = PBXGroup;
 			children = (
 				92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */,
+				CB57ED0922387F14C5337C9E /* ApplicationFocusRetentionTests.swift */,
 				1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */,
 				17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */,
 				389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */,
 				FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */,
 				3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */,
+				82E6C56E3F3285F208385635 /* CLIUsageBarLayoutTests.swift */,
+				68F14F51991780CA9D3AD601 /* CLIUsageRefreshCoordinatorTests.swift */,
 				8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */,
 				DACA14DE9C6EEE011D9AE4B7 /* GridSelectionStoreTests.swift */,
 				7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */,
 				456A324687C0257673524090 /* LiveProviderUsageTests.swift */,
+				4B813B5FE8ED118BE83E1526 /* PermissionReadinessTests.swift */,
+				2D7F911E06669EA7176EA7C0 /* ProgrammaticFocusStealCoordinatorTests.swift */,
+				FD0FFE1209B5C613EF656C6E /* ProviderUsagePresentationTests.swift */,
 				E7840CD26DF23F39C5BFE837 /* ProviderUsageReaderTests.swift */,
 				8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */,
 				7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */,
@@ -163,6 +227,7 @@
 				6A3267808F54D7281E9B2925 /* AgentGridApp.swift */,
 				5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */,
 				1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */,
+				0A86240560A23893FFAAA96C /* ApplicationFocusRetentionController.swift */,
 				7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */,
 				1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */,
 				2A8C9F351E9C50D185FF1F86 /* ClaudeUsageReader.swift */,
@@ -174,21 +239,30 @@
 				D98F90953CEBE598A999445D /* CLIUsageBar.swift */,
 				F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */,
 				DF3AE6841314956AB4B7D399 /* CLIUsageReading.swift */,
+				56B280A561414F5A601AE1F6 /* CLIUsageRefreshButton.swift */,
+				C9A9730D9A3941CD5C54F9AD /* CLIUsageRefreshCoordinator.swift */,
 				C44B9603151413A47C3F0FB2 /* CLIUsageSegment.swift */,
 				BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */,
 				319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */,
 				E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */,
 				A72079CB76B2BD39BC788D16 /* CursorUsageReader.swift */,
+				B88AA4C2D28AC1A467FFF1F8 /* FocusIntentMonitor.swift */,
 				3CEC06A617F9BC724582D21D /* GridSelectionStore.swift */,
 				BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */,
 				685FA8FB5BD7537B088C907E /* GridTabsModel.swift */,
 				BF08C99234A7699DEAF178FF /* GridTabStrip.swift */,
+				7724E8DC4608FF5A785C920C /* GrokACPUsageClient.swift */,
 				E2F555B62641F408BE71AFA1 /* GrokUsageReader.swift */,
+				0EC3E0CCB25DBAF06A1D8CCC /* PermissionReadiness.swift */,
+				649DF32822112FFE6EF4D335 /* PermissionReadinessView.swift */,
 				07C30A7E4045464891190F09 /* ProviderUsageHTTPTransport.swift */,
+				70337392D0FAC3394D6FFA19 /* ProviderUsageRow.swift */,
+				20969FE7E3E9FAAF8928D18A /* ProviderUsageSnapshot.swift */,
 				D973387604B7B18995BF892F /* RuntimePolicy.swift */,
 				E6D8F6081C34369B072DB218 /* TerminalGridView.swift */,
 				232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */,
 				7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */,
+				6FC0BD34CD433D34E2E7B560 /* UsageLifecycleMonitor.swift */,
 				8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */,
 			);
 			name = AgentGrid;
@@ -203,11 +277,22 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		5848F94355EB39DD4F5C3C97 /* FakeGrokACP */ = {
+			isa = PBXGroup;
+			children = (
+				EB5666D5A729ADB07681815B /* main.swift */,
+			);
+			name = FakeGrokACP;
+			path = Tests/Fixtures/FakeGrokACP;
+			sourceTree = "<group>";
+		};
 		65FDF1F6E7005F3F5771270A /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				5F46F0467A85F0704DEEC72E /* AgentGrid.app */,
 				719FC54600DCD272460660EC /* AgentGridTests.xctest */,
+				FCD7E6363C2334DFD67641D5 /* FakeGrokACP */,
+				521FF4E6449501636CB018BD /* FocusStealFixture.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -217,6 +302,8 @@
 			children = (
 				4BC5FB52AE7F7F50A0E784BE /* AgentGrid */,
 				3B18E0EF841DA8C82B855F45 /* AgentGridTests */,
+				5848F94355EB39DD4F5C3C97 /* FakeGrokACP */,
+				028324E8FBAA6B1C8944384B /* FocusStealFixture */,
 				4BEA47302A6A71BCC5AFAEBA /* Resources */,
 				16DFCA110C9A506AD376501E /* Frameworks */,
 				65FDF1F6E7005F3F5771270A /* Products */,
@@ -236,6 +323,7 @@
 			);
 			dependencies = (
 				B2D9D1D29022CEE162A18D82 /* PBXTargetDependency */,
+				0EA1C701108D9250C166FD43 /* PBXTargetDependency */,
 			);
 			name = AgentGridTests;
 			packageProductDependencies = (
@@ -243,6 +331,23 @@
 			productName = AgentGridTests;
 			productReference = 719FC54600DCD272460660EC /* AgentGridTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CA6E440FE134365DC64D3950 /* FakeGrokACP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0E4127E1A8AD44DE32F5BD21 /* Build configuration list for PBXNativeTarget "FakeGrokACP" */;
+			buildPhases = (
+				8F179A7C4FD5B056F25F32B4 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FakeGrokACP;
+			packageProductDependencies = (
+			);
+			productName = FakeGrokACP;
+			productReference = FCD7E6363C2334DFD67641D5 /* FakeGrokACP */;
+			productType = "com.apple.product-type.tool";
 		};
 		FC0556FE73BB7094F652B88F /* AgentGrid */ = {
 			isa = PBXNativeTarget;
@@ -264,6 +369,23 @@
 			productReference = 5F46F0467A85F0704DEEC72E /* AgentGrid.app */;
 			productType = "com.apple.product-type.application";
 		};
+		FED095CF9C1E0AE119ABB1A2 /* FocusStealFixture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09026423659BEBE9AFF2A478 /* Build configuration list for PBXNativeTarget "FocusStealFixture" */;
+			buildPhases = (
+				D424767A51253DF679088E11 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusStealFixture;
+			packageProductDependencies = (
+			);
+			productName = FocusStealFixture;
+			productReference = 521FF4E6449501636CB018BD /* FocusStealFixture.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -273,9 +395,6 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					FC0556FE73BB7094F652B88F = {
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = 5B3186F1EE6558AE15521A75 /* Build configuration list for PBXProject "AgentGrid" */;
@@ -295,6 +414,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				CA6E440FE134365DC64D3950 /* FakeGrokACP */,
+				FED095CF9C1E0AE119ABB1A2 /* FocusStealFixture */,
 				FC0556FE73BB7094F652B88F /* AgentGrid */,
 				39ED908E42356433158E1BAF /* AgentGridTests */,
 			);
@@ -318,15 +439,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				CD683735411A176BD98DAE27 /* AgentLaunchCatalogTests.swift in Sources */,
+				452FDEAF5EF4C892CB97F907 /* ApplicationFocusRetentionTests.swift in Sources */,
 				2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */,
 				BB2ED68A253D0626B21857E7 /* CLICommandRunnerTests.swift in Sources */,
 				1F05A0ACD4998662419CCE2E /* CLIMaintenanceModelTests.swift in Sources */,
 				319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */,
+				44A88BC3357045FC648A9B8C /* CLIUsageBarLayoutTests.swift in Sources */,
+				0A5555E62E34AFD569299FF1 /* CLIUsageRefreshCoordinatorTests.swift in Sources */,
 				7CA1CDE8289438DDE975850A /* CLIUsageTests.swift in Sources */,
 				1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */,
 				E70D7A9406287AE53B6D63ED /* GridSelectionStoreTests.swift in Sources */,
 				D15F639236C5DE3C7217BB36 /* GridTabsModelTests.swift in Sources */,
 				4B827AA880CB494F1583B089 /* LiveProviderUsageTests.swift in Sources */,
+				47F3801DF999FED2C1E0508B /* PermissionReadinessTests.swift in Sources */,
+				EC4F2CCFA3785CFC3F0FB68C /* ProgrammaticFocusStealCoordinator.swift in Sources */,
+				14A271D6A1783EB750B4C09A /* ProgrammaticFocusStealCoordinatorTests.swift in Sources */,
+				5B2AF43A0D117DBC258B2447 /* ProviderUsagePresentationTests.swift in Sources */,
 				6C395CB264094686EFE0F8F4 /* ProviderUsageReaderTests.swift in Sources */,
 				EF282CAB1C8E49A0839507AA /* RuntimePolicyTests.swift in Sources */,
 				1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */,
@@ -340,6 +468,7 @@
 				8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */,
 				D7E1C7432FD7D3935B74A2A7 /* AgentGridWorkspaceView.swift in Sources */,
 				B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */,
+				50243B76A2494DDB39B2890E /* ApplicationFocusRetentionController.swift in Sources */,
 				1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */,
 				69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */,
 				11B6FC04A07AD7B3DEEB213D /* CLIExecutableLocator.swift in Sources */,
@@ -349,6 +478,8 @@
 				5688B6C28ACED0BF917074C3 /* CLIUsageBar.swift in Sources */,
 				7956F5D4A5C975C03BD96944 /* CLIUsageModel.swift in Sources */,
 				697AD3D36B519764CF58F94B /* CLIUsageReading.swift in Sources */,
+				6D165A199765464685BD231D /* CLIUsageRefreshButton.swift in Sources */,
+				A4999E1642E346A827E63744 /* CLIUsageRefreshCoordinator.swift in Sources */,
 				C1CBD41BDCE723D6FD479128 /* CLIUsageSegment.swift in Sources */,
 				53E24CDEAE71F8193861E67C /* CLIUsageState.swift in Sources */,
 				B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */,
@@ -356,23 +487,52 @@
 				5279563EE574EB0A89E0B3E2 /* CodexUsageReader.swift in Sources */,
 				9FF2A10301CD371C6FFE3D2B /* CodexUsageResponseParser.swift in Sources */,
 				8AE78E5355EF6CE20CD753D0 /* CursorUsageReader.swift in Sources */,
+				723BB6ED5F939EF9C44262F5 /* FocusIntentMonitor.swift in Sources */,
 				3B36C9CA1E35A8D21D8B7C7F /* GridSelectionStore.swift in Sources */,
 				356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */,
 				D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */,
 				1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */,
+				EAE7BC797A5A423E20E9053D /* GrokACPUsageClient.swift in Sources */,
 				4E7FA73D4A2259D3A0DF8414 /* GrokUsageReader.swift in Sources */,
+				B13E87E18A98A2384FFF5DC0 /* PermissionReadiness.swift in Sources */,
+				20BC0AE36238831146F91231 /* PermissionReadinessView.swift in Sources */,
 				69971F67EBA862E96EB2D83C /* ProviderUsageHTTPTransport.swift in Sources */,
+				114A088A19E27A742BE3DACD /* ProviderUsageRow.swift in Sources */,
+				639ACEA1D842A71D26696816 /* ProviderUsageSnapshot.swift in Sources */,
 				B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */,
 				CD15571A5FF8B59D5D8B3D93 /* TerminalGridView.swift in Sources */,
 				179603EA3FFE4B9ECA868BAC /* TerminalLaunchGate.swift in Sources */,
 				580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */,
+				A0A6F9ABB1DB346474C41090 /* UsageLifecycleMonitor.swift in Sources */,
 				18707C42DD71D702540433E1 /* WindowMaximizer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8F179A7C4FD5B056F25F32B4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6B33706C8C4D65801B17F69 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D424767A51253DF679088E11 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB4814652D4B7581BB431357 /* FocusStealFixtureApp.swift in Sources */,
+				9C334E638AB9DA04C17F7FAF /* ProgrammaticFocusStealCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0EA1C701108D9250C166FD43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA6E440FE134365DC64D3950 /* FakeGrokACP */;
+			targetProxy = B0ACD71C3B4B4757CE995C13 /* PBXContainerItemProxy */;
+		};
 		B2D9D1D29022CEE162A18D82 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FC0556FE73BB7094F652B88F /* AgentGrid */;
@@ -435,6 +595,39 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		1FC5238FA40658B369E28B71 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AgentGrid Focus Steal Fixture";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGridFocusStealFixture;
+				PRODUCT_NAME = FocusStealFixture;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		33B7B63A1DBFFEBB240C5D2A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.FakeGrokACP;
+				PRODUCT_NAME = FakeGrokACP;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -519,6 +712,20 @@
 			};
 			name = Release;
 		};
+		B67FBCC2A9D3CBD618567103 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.FakeGrokACP;
+				PRODUCT_NAME = FakeGrokACP;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
 		B7E7D47AB0B0FD666CDAB2D3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -539,11 +746,16 @@
 		DB0DDD91FE61981F76E93063 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				AD_HOC_CODE_SIGNING_ALLOWED = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGNING_REQUIRED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = 9UKJNG8B38;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -554,9 +766,28 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		ED731078541747EF0A7ADB6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AgentGrid Focus Steal Fixture";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGridFocusStealFixture;
+				PRODUCT_NAME = FocusStealFixture;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -567,7 +798,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -578,7 +809,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.3;
+				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;
@@ -588,6 +819,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		09026423659BEBE9AFF2A478 /* Build configuration list for PBXNativeTarget "FocusStealFixture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FC5238FA40658B369E28B71 /* Debug */,
+				ED731078541747EF0A7ADB6D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		0E4127E1A8AD44DE32F5BD21 /* Build configuration list for PBXNativeTarget "FakeGrokACP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B67FBCC2A9D3CBD618567103 /* Debug */,
+				33B7B63A1DBFFEBB240C5D2A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		32F82775D3DE91149ED974C9 /* Build configuration list for PBXNativeTarget "AgentGrid" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

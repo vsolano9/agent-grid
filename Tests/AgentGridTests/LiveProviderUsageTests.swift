@@ -9,15 +9,20 @@ struct LiveProviderUsageTests {
             atPath: "/tmp/AgentGridLiveUsageTests.enabled"
         ))
     )
-    func signedInAccountsExposeQuota() async {
-        let states = await CLIUsageService.live().fetch()
+    func signedInAccountsExposeQuota() async throws {
+        let snapshots = try await CLIUsageService.live().fetch()
 
         for kind in CLIUsageService.displayedKinds {
-            guard case let .available(remainingPercent) = states[kind] else {
-                Issue.record("\(kind.displayName) did not return a live quota: \(String(describing: states[kind]))")
+            guard let snapshot = snapshots.first(where: { $0.provider == kind }),
+                  snapshot.state == .available,
+                  snapshot.windows.contains(where: { $0.freshness == .fresh }) else {
+                Issue.record("\(kind.displayName) did not return live quota windows.")
                 continue
             }
-            #expect((0 ... 100).contains(remainingPercent))
+            #expect(snapshot.windows.allSatisfy { (0 ... 100).contains($0.remainingPercent) })
+            #expect(snapshot.windows.allSatisfy { window in
+                window.resetsAt.map { $0.timeIntervalSince1970.isFinite } ?? true
+            })
         }
     }
 }

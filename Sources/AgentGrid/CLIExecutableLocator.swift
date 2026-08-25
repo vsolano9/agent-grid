@@ -4,17 +4,26 @@ struct CLIExecutableLocator: Sendable {
     private let homeDirectory: URL
     private let environment: [String: String]
     private let isExecutable: @Sendable (String) -> Bool
+    private let directoryContents: @Sendable (URL) -> [URL]
 
     init(
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         environment: [String: String] = ProcessInfo.processInfo.environment,
         isExecutable: @escaping @Sendable (String) -> Bool = {
             FileManager.default.isExecutableFile(atPath: $0)
+        },
+        directoryContents: @escaping @Sendable (URL) -> [URL] = {
+            (try? FileManager.default.contentsOfDirectory(
+                at: $0,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )) ?? []
         }
     ) {
         self.homeDirectory = homeDirectory
         self.environment = environment
         self.isExecutable = isExecutable
+        self.directoryContents = directoryContents
     }
 
     func locate(_ kind: AgentKind) -> URL? {
@@ -49,11 +58,7 @@ struct CLIExecutableLocator: Sendable {
                 ".local/share/cursor-agent/versions",
                 isDirectory: true
             )
-            let versions = (try? FileManager.default.contentsOfDirectory(
-                at: versionsDirectory,
-                includingPropertiesForKeys: nil,
-                options: [.skipsHiddenFiles]
-            )) ?? []
+            let versions = directoryContents(versionsDirectory)
             return versions
                 .sorted { $0.lastPathComponent > $1.lastPathComponent }
                 .map { $0.appendingPathComponent("cursor-agent", isDirectory: false) }
