@@ -46,7 +46,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - The per-grid default working directory is `/Volumes/Extreme Pro/Documents/Work`, with home-directory fallback when unavailable.
 - Every app launch attempts official updates for Codex, Claude, Grok, Cursor Agent, and Hermes Agent before terminal configuration exists.
 - `~/.local/bin` is first in terminal `PATH`; its five canonical CLI names are atomically repaired and verified with `--version` on launch.
-- An updater failure is non-blocking only when a provider-plausible previous launcher or the repaired alias verifies. Candidate targets are preflighted before replacement; an alias failure blocks all terminal launch until Retry succeeds.
+- An updater or discovery failure is non-blocking only when a provider-plausible previous launcher or the repaired alias verifies. Candidate targets are preflighted before replacement, every retained fallback is surfaced as a warning, and an alias failure blocks all terminal launch until Retry succeeds.
 - Lifecycle cancellation stops the active updater process group and does not begin later updater commands.
 - Hermes keeps an environment-sanitizing launcher so inherited `PYTHONHOME` or `PYTHONPATH` cannot break its managed virtual environment.
 - AgentGrid does not edit shell profiles, credentials, or provider configuration during maintenance.

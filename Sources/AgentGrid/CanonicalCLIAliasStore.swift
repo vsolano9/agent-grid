@@ -22,7 +22,7 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         self.verifiesExecutable = verifiesExecutable
     }
 
-    func repairAlias(for item: CLIMaintenanceItem) async throws -> URL {
+    func repairAlias(for item: CLIMaintenanceItem) async throws -> CLIAliasRepair {
         let canonicalDirectory = homeDirectory
             .appendingPathComponent(".local/bin", isDirectory: true)
             .standardizedFileURL
@@ -54,24 +54,38 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         if item.kind == .hermes,
            isHermesLauncher(at: aliasURL),
            await verifiesExecutable(aliasURL) {
-            return aliasURL
+            return CLIAliasRepair(aliasURL: aliasURL, usedFallback: false)
         }
 
         guard let target = locator.locate(item.kind) else {
+            if await hasVerifiedFallback(
+                existingDestination,
+                for: item.kind,
+                aliasURL: aliasURL
+            ) {
+                return CLIAliasRepair(aliasURL: aliasURL, usedFallback: true)
+            }
             throw CLIAliasError.noExecutable
         }
-        guard target.standardizedFileURL != aliasURL else {
-            throw CLIAliasError.selfReferentialTarget
-        }
-        guard !linkChainDependsOnAlias(from: target, aliasURL: aliasURL) else {
+        guard target.standardizedFileURL != aliasURL,
+              !linkChainDependsOnAlias(from: target, aliasURL: aliasURL) else {
+            if await hasVerifiedFallback(
+                existingDestination,
+                for: item.kind,
+                aliasURL: aliasURL
+            ) {
+                return CLIAliasRepair(aliasURL: aliasURL, usedFallback: true)
+            }
             throw CLIAliasError.selfReferentialTarget
         }
 
         guard await verifiesExecutable(target) else {
-            if let existingDestination,
-               isPlausibleTarget(existingDestination, for: item.kind, aliasURL: aliasURL),
-               await verifiesExecutable(aliasURL) {
-                return aliasURL
+            if await hasVerifiedFallback(
+                existingDestination,
+                for: item.kind,
+                aliasURL: aliasURL
+            ) {
+                return CLIAliasRepair(aliasURL: aliasURL, usedFallback: true)
             }
             throw CLIAliasError.verificationFailed
         }
@@ -81,7 +95,19 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         } else {
             try replaceAlias(at: aliasURL, with: target)
         }
-        return aliasURL
+        return CLIAliasRepair(aliasURL: aliasURL, usedFallback: false)
+    }
+
+    private func hasVerifiedFallback(
+        _ existingDestination: String?,
+        for kind: AgentKind,
+        aliasURL: URL
+    ) async -> Bool {
+        guard let existingDestination,
+              isPlausibleTarget(existingDestination, for: kind, aliasURL: aliasURL) else {
+            return false
+        }
+        return await verifiesExecutable(aliasURL)
     }
 
     private func linkChainDependsOnAlias(from start: URL, aliasURL: URL) -> Bool {

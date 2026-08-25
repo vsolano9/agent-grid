@@ -46,7 +46,12 @@ enum CLIAliasError: Error, Equatable, Sendable {
 }
 
 protocol CLIAliasMaintaining: Sendable {
-    func repairAlias(for item: CLIMaintenanceItem) async throws -> URL
+    func repairAlias(for item: CLIMaintenanceItem) async throws -> CLIAliasRepair
+}
+
+struct CLIAliasRepair: Equatable, Sendable {
+    let aliasURL: URL
+    let usedFallback: Bool
 }
 
 protocol CLIMaintaining: Sendable {
@@ -195,10 +200,10 @@ struct CLIMaintenanceService: Sendable {
 
             let entry: CLIMaintenanceEntry
             do {
-                let aliasURL = try await aliasStore.repairAlias(for: item)
+                let repair = try await aliasStore.repairAlias(for: item)
                 let verification = await runner.run(
                     CLICommand(
-                        executable: aliasURL,
+                        executable: repair.aliasURL,
                         arguments: ["--version"],
                         timeout: .seconds(20),
                         capturesOutput: true
@@ -209,7 +214,7 @@ struct CLIMaintenanceService: Sendable {
                     let version = normalizedVersion(output)
                     entry = CLIMaintenanceEntry(
                         kind: item.kind,
-                        state: updateOutcome.succeeded
+                        state: updateOutcome.succeeded && !repair.usedFallback
                             ? .ready(version: version)
                             : .readyWithWarning(version: version)
                     )

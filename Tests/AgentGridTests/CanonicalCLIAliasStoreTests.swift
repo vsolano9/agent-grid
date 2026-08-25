@@ -13,7 +13,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let alias = try await store.repairAlias(for: fixture.item(kind: .codex))
+        let alias = try await store.repairAlias(for: fixture.item(kind: .codex)).aliasURL
 
         #expect(alias == fixture.alias(named: "codex"))
         #expect(alias.resolvingSymlinksInPath() == target.resolvingSymlinksInPath())
@@ -38,7 +38,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let repaired = try await store.repairAlias(for: fixture.item(kind: .claude))
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .claude)).aliasURL
 
         #expect(repaired.resolvingSymlinksInPath() == target.resolvingSymlinksInPath())
         #expect(try FileManager.default.contentsOfDirectory(atPath: alias.deletingLastPathComponent().path)
@@ -58,7 +58,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let repaired = try await store.repairAlias(for: fixture.item(kind: .cursor))
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .cursor)).aliasURL
 
         #expect(repaired == alias)
         #expect(FileManager.default.isSymbolicLink(at: alias))
@@ -85,7 +85,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let repaired = try await store.repairAlias(for: fixture.item(kind: .grok))
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .grok)).aliasURL
 
         #expect(repaired.resolvingSymlinksInPath() == target.resolvingSymlinksInPath())
     }
@@ -143,7 +143,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let repaired = try await store.repairAlias(for: fixture.item(kind: .codex))
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .codex)).aliasURL
 
         #expect(repaired.resolvingSymlinksInPath() == expected.resolvingSymlinksInPath())
     }
@@ -160,7 +160,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
-        let alias = try await store.repairAlias(for: fixture.item(kind: .grok))
+        let alias = try await store.repairAlias(for: fixture.item(kind: .grok)).aliasURL
 
         #expect(try FileManager.default.destinationOfSymbolicLink(atPath: alias.path) == stable.path)
     }
@@ -182,7 +182,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": ""]
         )
 
-        let alias = try await store.repairAlias(for: fixture.item(kind: .cursor))
+        let alias = try await store.repairAlias(for: fixture.item(kind: .cursor)).aliasURL
         let destination = try FileManager.default.destinationOfSymbolicLink(atPath: alias.path)
 
         #expect(
@@ -208,7 +208,7 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": ""]
         )
 
-        let alias = try await store.repairAlias(for: fixture.item(kind: .hermes))
+        let alias = try await store.repairAlias(for: fixture.item(kind: .hermes)).aliasURL
 
         #expect(!FileManager.default.isSymbolicLink(at: alias))
         let outcome = await CLICommandRunner(
@@ -236,14 +236,15 @@ struct CanonicalCLIAliasStoreTests {
             verifiesExecutable: { $0 == alias }
         )
 
-        let repaired = try await store.repairAlias(for: fixture.item(kind: .codex))
+        let repair = try await store.repairAlias(for: fixture.item(kind: .codex))
 
         #expect(candidate != fallback)
-        #expect(repaired.resolvingSymlinksInPath() == fallback.resolvingSymlinksInPath())
+        #expect(repair.usedFallback)
+        #expect(repair.aliasURL.resolvingSymlinksInPath() == fallback.resolvingSymlinksInPath())
     }
 
-    @Test("Store rejects a candidate symlink chain that depends on its alias")
-    func rejectsIndirectSelfReference() async throws {
+    @Test("Store ignores an indirect-cycle candidate when its fallback verifies")
+    func preservesFallbackAroundIndirectSelfReference() async throws {
         let fixture = try AliasFixture()
         defer { fixture.cleanUp() }
         let fallback = fixture.root.appendingPathComponent("old/codex")
@@ -263,9 +264,53 @@ struct CanonicalCLIAliasStoreTests {
             environment: ["PATH": fixture.tools.path]
         )
 
+        let repair = try await store.repairAlias(for: fixture.item(kind: .codex))
+
+        #expect(repair.usedFallback)
+        #expect(repair.aliasURL.resolvingSymlinksInPath() == fallback.resolvingSymlinksInPath())
+    }
+
+    @Test("Store rejects an indirect-cycle candidate without a valid fallback")
+    func rejectsIndirectSelfReferenceWithoutFallback() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let alias = fixture.alias(named: "codex")
+        try fixture.makeExecutable(at: alias)
+        try FileManager.default.createSymbolicLink(
+            at: fixture.tools.appendingPathComponent("codex"),
+            withDestinationURL: alias
+        )
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
+
         await #expect(throws: CLIAliasError.selfReferentialTarget) {
             try await store.repairAlias(for: fixture.item(kind: .codex))
         }
+    }
+
+    @Test("Store preserves a verified fallback when discovery finds no candidate")
+    func preservesFallbackWithoutCandidate() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let fallback = fixture.root.appendingPathComponent("old/hermes")
+        try fixture.makeExecutable(at: fallback)
+        let alias = fixture.alias(named: "hermes")
+        try FileManager.default.createDirectory(
+            at: alias.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: fallback)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": ""]
+        )
+
+        let repair = try await store.repairAlias(for: fixture.item(kind: .hermes))
+
+        #expect(repair.usedFallback)
+        #expect(repair.aliasURL.resolvingSymlinksInPath() == fallback.resolvingSymlinksInPath())
     }
 }
 

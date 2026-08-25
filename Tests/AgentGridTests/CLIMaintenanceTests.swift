@@ -177,6 +177,21 @@ struct CLIMaintenanceTests {
         #expect(report.entries.isEmpty)
         #expect(await fixture.runner.recordedCommands().isEmpty)
     }
+
+    @Test("A retained fallback is a warning even when the updater exits zero")
+    func retainedFallbackWarnsAfterSuccessfulUpdater() async throws {
+        let fixture = MaintenanceFixture(
+            updateOutcomes: [.exited(status: 0, output: "")],
+            verificationOutcomes: [.exited(status: 0, output: "codex-cli 1.0")],
+            kinds: [.codex],
+            fallbackKinds: [.codex]
+        )
+
+        let report = await fixture.service.perform()
+        let entry = try #require(report.entries.first)
+
+        #expect(entry.state == .readyWithWarning(version: "codex-cli 1.0"))
+    }
 }
 
 private actor ProgressRecorder {
@@ -196,13 +211,17 @@ private struct MaintenanceFixture {
         updateOutcomes: [CLICommandOutcome],
         verificationOutcomes: [CLICommandOutcome],
         kinds: [AgentKind] = AgentKind.allCases,
-        repairFailures: [AgentKind: CLIAliasError] = [:]
+        repairFailures: [AgentKind: CLIAliasError] = [:],
+        fallbackKinds: Set<AgentKind> = []
     ) {
         let runner = StubCLICommandRunner(
             updateOutcomes: updateOutcomes,
             verificationOutcomes: verificationOutcomes
         )
-        let aliasStore = StubCLIAliasStore(repairFailures: repairFailures)
+        let aliasStore = StubCLIAliasStore(
+            repairFailures: repairFailures,
+            fallbackKinds: fallbackKinds
+        )
         let items = kinds.map { kind in
             CLIMaintenanceItem(
                 kind: kind,
@@ -256,15 +275,23 @@ private actor StubCLICommandRunner: CLICommandRunning {
 
 private actor StubCLIAliasStore: CLIAliasMaintaining {
     private let repairFailures: [AgentKind: CLIAliasError]
+    private let fallbackKinds: Set<AgentKind>
 
-    init(repairFailures: [AgentKind: CLIAliasError]) {
+    init(
+        repairFailures: [AgentKind: CLIAliasError],
+        fallbackKinds: Set<AgentKind>
+    ) {
         self.repairFailures = repairFailures
+        self.fallbackKinds = fallbackKinds
     }
 
-    func repairAlias(for item: CLIMaintenanceItem) async throws -> URL {
+    func repairAlias(for item: CLIMaintenanceItem) async throws -> CLIAliasRepair {
         if let error = repairFailures[item.kind] {
             throw error
         }
-        return item.aliasURL
+        return CLIAliasRepair(
+            aliasURL: item.aliasURL,
+            usedFallback: fallbackKinds.contains(item.kind)
+        )
     }
 }
