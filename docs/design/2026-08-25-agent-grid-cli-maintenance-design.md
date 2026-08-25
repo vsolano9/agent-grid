@@ -2,7 +2,7 @@
 
 ## Outcome
 
-AgentGrid attempts to update Codex, Claude, Grok, Cursor Agent, and Hermes Agent every time the app opens. It then repairs the stable executable links in `~/.local/bin`, verifies every link with the CLI's `--version` command, and only then builds the terminal launch catalog.
+AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent every time the app opens, but installs only when the provider reports a newer release. It then repairs the stable executable links in `~/.local/bin`, verifies every link with the CLI's `--version` command, and only then builds the terminal launch catalog.
 
 An update failure does not discard a working installation. If the stable link still passes verification, AgentGrid opens the grid setup with a visible warning. If any link cannot launch, the maintenance screen names that CLI and offers Retry; terminal setup remains unavailable so a grid cannot start with a known-broken command.
 
@@ -22,7 +22,7 @@ Official owner documentation provides these update seams:
 
 ## Architecture
 
-`CLIMaintenanceService` owns the complete transaction: resolve the current executable, choose the update mechanism, run every updater in a deterministic sequence, repair each canonical link, verify every link, and return one report. Its public interface exposes a single asynchronous maintenance operation; SwiftUI does not know package names, filesystem mechanics, process arguments, or fallback policy.
+`CLIMaintenanceService` owns the complete transaction: resolve and verify the current executable, choose the version-check mechanism, run checks in deterministic sequence, invoke the updater only for an available version, repair each canonical link, verify every link, and return one report. Its public interface exposes a single asynchronous maintenance operation; SwiftUI does not know package names, filesystem mechanics, process arguments, or fallback policy.
 
 `CLICommandRunner` is an actor that starts every command in its own POSIX process group. It polls cooperatively, terminates the complete group on cancellation or timeout, discards updater output, and captures only bounded version output. No process handle, pipe, or mutable runner state crosses an actor boundary.
 
@@ -38,7 +38,7 @@ Hermes is the one canonical regular launcher rather than a symlink. AgentGrid pr
 | --- | --- | --- |
 | Caller model | One `perform()` result | Five commands plus alias and retry coordination |
 | Hidden complexity | Package-manager detection, ordering, timeouts, links, verification, fallback | Most policy leaks into the app and view model |
-| Owned invariants | Every updater attempted; launch only when all aliases verify | Callers must preserve ordering and completeness |
+| Owned invariants | Every version checked; only newer versions installed; launch only when all aliases verify | Callers must preserve ordering and completeness |
 | Dependency direction | UI depends on a domain report; adapters depend on Foundation | UI depends directly on process and filesystem mechanisms |
 | Failure semantics | Per-CLI update warning versus broken alias is explicit | Partial failure interpretation is scattered |
 | Test seam | One behavior-level service seam plus real adapter tests | Mostly shallow helper tests |
@@ -48,18 +48,21 @@ The deep service is selected because the sequencing and fallback rules are the f
 
 ## Update and alias policy
 
-- All five update attempts run serially. Codex and Claude can share one global npm prefix, so parallel package replacement is unsafe; one deterministic sequence also makes status and recovery clear.
+- All five checks run serially. Codex and Claude can share one global npm prefix, so any necessary package replacement remains serialized; one deterministic sequence also makes status and recovery clear.
+- npm registry versions gate npm-managed Codex and Claude installs. Grok's JSON check and Hermes's text check gate their native updaters. Cursor Agent's native update command is self-checking and runs exactly once.
 - npm-managed Codex and Claude installations use their official npm packages. The Claude invocation grants only `@anthropic-ai/claude-code` lifecycle scripts and does not persist npm configuration. Other working installations use their CLI-native update command.
 - Grok, Cursor Agent, and Hermes Agent use their native update commands.
 - A failed update is a warning when the post-update canonical alias still passes `--version`.
-- Missing or failing aliases are blocking. Retry reruns all five updates rather than only the visible failure, preserving the every-launch contract.
+- Missing or failing aliases are blocking. Retry reruns all five checks rather than only the visible failure, preserving the every-launch verification contract.
 - Window/task cancellation terminates the active updater group and stops the transaction before any later updater begins; a subsequent launch starts a fresh complete transaction.
 - AgentGrid never edits shell startup files, authentication stores, CLI configuration, or credentials. The existing terminal environment already places `~/.local/bin` first.
 - Subprocesses receive the maintained terminal environment, no shell interpolation, no prompts, a bounded timeout, and an isolated process group that is fully terminated on timeout or cancellation.
 
 ## Interface and accessibility
 
-The maintenance surface reuses AgentGrid's centered graphite setup layer, orange accent, native controls, and existing typography. Five fixed rows show pending, active, verified, warning, or failed state. A determinate `ProgressView` reports completed CLI checks out of five. Failure copy names the CLI and action; Retry is the only required recovery control. VoiceOver receives the maintenance title, progress value, row state, and retry hint. Reduce Motion requires no special branch because only native progress animation is used.
+The maintenance surface reuses AgentGrid's centered graphite setup layer, orange accent, native controls, and existing typography. Five fixed rows show pending, checking, updating, verifying, warning, or failed state. A determinate `ProgressView` reports completed CLI checks out of five. Failure copy names the CLI and action; Retry is the only required recovery control. VoiceOver receives the maintenance title, progress value, row state, and retry hint. Reduce Motion requires no special branch because only native progress animation is used.
+
+The workspace adds a 42-point graphite quota rail below the terminal deck. Five equal segments preserve the grid rhythm, use monospaced percentage values, and animate only the thin orange fill. Codex displays a real account-wide remaining percentage from its authenticated local app-server protocol. Providers without a safe comparable CLI value show an em dash and explanatory tooltip; session tokens, API billing, and fabricated estimates are deliberately excluded. The trailing refresh control is icon-only with a descriptive accessibility label, and Reduce Motion makes percentage changes immediate.
 
 References inspected before implementation:
 
@@ -73,4 +76,4 @@ References inspected before implementation:
 - Focused maintenance tests, the complete AgentGrid suite, Debug build, Release build, generated-project drift, and app-icon verification pass.
 - Runtime proof uses disposable fake CLI installations for update/alias behavior, then the real installed CLIs for `--version` and canonical-link resolution.
 - Manual launch inspection covers progress, warning/failure recovery, setup transition, and terminal launch after maintenance.
-- Ship as AgentGrid 1.3.0 build 4. Install the verified Release bundle at `/Users/victor/Applications/AgentGrid.app`, launch it once, and verify all five updater attempts and aliases before merging and pushing `main`.
+- Ship the amendment as AgentGrid 1.3.1 build 5. Install the verified Release bundle at `/Users/victor/Applications/AgentGrid.app`, launch it twice, verify the first launch installs only an actually available release, and verify the second launch performs checks without unnecessary installs.

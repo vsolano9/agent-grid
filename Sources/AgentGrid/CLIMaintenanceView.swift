@@ -18,7 +18,7 @@ struct CLIMaintenanceView: View {
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .tint(Color(red: 0.92, green: 0.45, blue: 0.12))
-                        .accessibilityHint("Attempts every supported CLI update and alias check again")
+                        .accessibilityHint("Checks every supported CLI again and installs only newer versions")
                 }
             }
             .padding(32)
@@ -42,14 +42,14 @@ struct CLIMaintenanceView: View {
                 .foregroundStyle(Color(red: 1, green: 0.62, blue: 0.25))
                 .accessibilityHidden(true)
 
-            Text(isFailed ? "CLI maintenance needs attention" : "Updating command line tools")
+            Text(headerTitle)
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(Color.white.opacity(0.94))
 
             Text(
                 isFailed
                     ? "Repair the failed command before launching unrestricted terminals."
-                    : "AgentGrid is updating and verifying every CLI before terminal setup."
+                    : "AgentGrid checks versions and aliases, then installs only newer CLI releases."
             )
             .font(.system(size: 13))
             .foregroundStyle(Color.white.opacity(0.62))
@@ -131,7 +131,13 @@ struct CLIMaintenanceView: View {
     }
 
     private func statusText(for kind: AgentKind) -> String {
-        if activeKind == kind { return "Updating…" }
+        if activeKind == kind {
+            switch activeStage {
+            case .updating: return "Updating…"
+            case .verifying: return "Verifying…"
+            case .checking, nil: return "Checking…"
+            }
+        }
         guard let entry = entry(for: kind) else { return "Pending" }
         switch entry.state {
         case let .ready(version): return version
@@ -164,6 +170,18 @@ struct CLIMaintenanceView: View {
     private var activeKind: AgentKind? {
         guard case let .running(progress) = phase else { return nil }
         return progress.activeKind
+    }
+
+    private var activeStage: CLIMaintenanceStage? {
+        guard case let .running(progress) = phase else { return nil }
+        return progress.stage
+    }
+
+    private var headerTitle: String {
+        if isFailed { return "CLI maintenance needs attention" }
+        return activeStage == .updating
+            ? "Updating command line tools"
+            : "Checking command line tools"
     }
 
     private var completedCount: Int {

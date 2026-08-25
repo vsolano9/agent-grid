@@ -11,12 +11,15 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `project.yml` | XcodeGen project definition, deployment target, and pinned dependency |
 | `Sources/AgentGrid/AgentLaunchSpec.swift` | Four-slot selection, executable names, and exact YOLO arguments |
 | `Sources/AgentGrid/RuntimePolicy.swift` | Working-directory and environment policy |
-| `Sources/AgentGrid/CLIMaintenance.swift` | Ordered every-launch updater, verification policy, and report model |
+| `Sources/AgentGrid/CLIMaintenance.swift` | Ordered every-launch version checks, conditional updater, alias verification policy, and report model |
 | `Sources/AgentGrid/CLICommandRunner.swift` | Bounded, cancellable updater and version subprocess execution |
 | `Sources/AgentGrid/CLIExecutableLocator.swift` | Provider-aware executable discovery outside canonical aliases |
 | `Sources/AgentGrid/CanonicalCLIAliasStore.swift` | Atomic `~/.local/bin` alias repair and target safety |
 | `Sources/AgentGrid/CLIMaintenanceModel.swift` | Main-actor launch gate and retry state |
 | `Sources/AgentGrid/CLIMaintenanceView.swift` | Startup progress and blocking failure surface |
+| `Sources/AgentGrid/CLIUsageReading.swift` | Honest per-provider quota capability and live reader composition |
+| `Sources/AgentGrid/CodexUsageReader.swift` | Local Codex app-server quota handshake |
+| `Sources/AgentGrid/CLIUsageBar.swift` | Compact bottom quota rail and manual refresh control |
 | `Sources/AgentGrid/GridTabsModel.swift` | One-to-six draft/launch tab, naming, selection, and close policy |
 | `Sources/AgentGrid/GridTabStrip.swift` | Custom tab states, shortcuts, motion, and accessibility |
 | `Sources/AgentGrid/GridSetupView.swift` | Four-position CLI, per-grid working-directory, and launch surface |
@@ -28,7 +31,8 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `docs/design/2026-08-22-agent-grid-tabs-design.md` | Approved multi-grid interaction and visual contract |
 | `docs/design/2026-08-24-agent-grid-cli-selection-design.md` | Per-grid CLI selection and launch contract |
 | `docs/decisions/001-retain-terminal-grids-in-view-tree.md` | Session-retention architecture decision |
-| `docs/decisions/002-gate-terminal-launch-on-cli-maintenance.md` | Every-launch update and verified-alias gate decision |
+| `docs/decisions/002-gate-terminal-launch-on-cli-maintenance.md` | Every-launch check, conditional update, and verified-alias gate decision |
+| `docs/plans/2026-08-25-agent-grid-conditional-updates-and-usage.md` | AgentGrid 1.3.1 acceptance and delivery plan |
 | `docs/design/agent-grid-icon-master.png` | Approved 1024 px icon source |
 | `scripts/generate-app-icon.swift` | Deterministic macOS icon-size generation |
 | `scripts/verify-app-icon.sh` | Compiled bundle icon regression check |
@@ -44,16 +48,17 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - PTYs launch only after their views are attached and have a non-zero layout.
 - The top-left position is the sole initial-focus pane, independent of CLI kind.
 - The per-grid default working directory is `/Volumes/Extreme Pro/Documents/Work`, with home-directory fallback when unavailable.
-- Every app launch attempts official updates for Codex, Claude, Grok, Cursor Agent, and Hermes Agent before terminal configuration exists.
+- Every app launch checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent; an official updater runs only when a newer release is reported. Cursor Agent's official update command performs its own check and installs only when needed.
 - `~/.local/bin` is first in terminal `PATH`; its five canonical CLI names are atomically repaired and verified with `--version` on launch.
 - An updater or discovery failure is non-blocking only when a provider-plausible previous launcher or the repaired alias verifies. Candidate targets are preflighted before replacement, every retained fallback is surfaced as a warning, and an alias failure blocks all terminal launch until Retry succeeds.
 - Lifecycle cancellation stops the active updater process group and does not begin later updater commands.
 - Hermes keeps an environment-sanitizing launcher so inherited `PYTHONHOME` or `PYTHONPATH` cannot break its managed virtual environment.
 - AgentGrid does not edit shell profiles, credentials, or provider configuration during maintenance.
+- The bottom usage rail displays only comparable account quota remaining. Codex is read locally from its authenticated app-server API; providers without a safe account-wide CLI percentage show an explicit unavailable state. Readings are neither persisted nor sent elsewhere.
 - The app does not restart exited agents or persist terminal state.
 - SwiftTerm is pinned to 1.20.0.
 - All catalog icon sizes are generated from the approved master; never redraw them independently.
 
 ## Validation
 
-Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five updater attempts, direct success of every canonical alias, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.
+Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five version checks, no updater invocation for current versions, updater invocation for an available version, direct success of every canonical alias, a real Codex quota reading, honest unavailable states for unsupported providers, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.

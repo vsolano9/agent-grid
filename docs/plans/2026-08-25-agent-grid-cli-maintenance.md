@@ -1,5 +1,7 @@
 # AgentGrid CLI maintenance implementation plan
 
+> Historical note: This plan delivered AgentGrid 1.3.0 build 4. Its unconditional updater behavior was superseded by the conditional-update and quota-rail amendment in AgentGrid 1.3.1 build 5; the current behavior is documented in the maintenance design and ADR-002.
+
 > **For the executor:** REQUIRED SUB-SKILL: Use executing-plans to implement this plan task-by-task.
 
 **Goal:** Update every supported CLI on each AgentGrid launch, repair and verify stable CLI aliases, and prevent terminal setup from using a broken or stale executable.

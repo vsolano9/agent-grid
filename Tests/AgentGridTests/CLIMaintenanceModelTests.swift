@@ -37,6 +37,7 @@ struct CLIMaintenanceModelTests {
             CLIMaintenanceProgress(
                 completedCount: 1,
                 activeKind: .claude,
+                stage: .checking,
                 entries: [CLIMaintenanceReport.allReady.entries[0]]
             )
         ))
@@ -163,6 +164,7 @@ private actor GatedCLIMaintenanceService: CLIMaintaining {
             CLIMaintenanceProgress(
                 completedCount: 1,
                 activeKind: .claude,
+                stage: .checking,
                 entries: [report.entries[0]]
             )
         )

@@ -12,7 +12,9 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 
 Every position is independent, so combinations such as four Codex sessions are supported. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
 
-Before terminal setup appears, AgentGrid updates Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order, repairs their stable launchers under `~/.local/bin`, and verifies every launcher with `--version`. A failed update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
+Before terminal setup appears, AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order. It installs a CLI only when its official version check reports a newer release, then repairs the stable launchers under `~/.local/bin` and verifies every launcher with `--version`. A failed check or update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
+
+A compact rail along the bottom shows supported account quota as percentage remaining. Codex currently exposes a safe account-wide quota reading, so its segment shows a real value such as `55% left`. Claude exposes plan status only through interactive `/usage`; Grok and Cursor expose their allowance in account dashboards; Hermes exposes session tokens while routing through an underlying provider. Those segments show an em dash with a tooltip pointing to the authoritative surface rather than scraping private endpoints or mixing unlike metrics. The refresh button requests a fresh reading.
 
 ## Requirements
 
@@ -71,7 +73,7 @@ The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/Sw
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes only each provider's official updater and `--version`; it does not change authentication or provider configuration.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads current quota locally from authenticated CLI state and does not transmit or persist it.
 
 ## License
 

@@ -3,7 +3,7 @@ import Testing
 @testable import AgentGrid
 
 struct CLIMaintenanceTests {
-    @Test("Live plan uses exact official updater commands in catalog order")
+    @Test("Live plan checks for newer releases before selecting official updater commands")
     func livePlanCommands() throws {
         let home = URL(fileURLWithPath: "/home/test", isDirectory: true)
         let npm = URL(fileURLWithPath: "/opt/homebrew/bin/npm")
@@ -29,6 +29,44 @@ struct CLIMaintenanceTests {
             "/home/test/.local/bin/cursor-agent",
             "/home/test/.local/bin/hermes",
         ])
+        #expect(plan.items.map(\.updateCheckFormat) == [
+            .semanticVersion,
+            .semanticVersion,
+            .grokJSON,
+            .selfInstalling,
+            .hermesText,
+        ])
+        #expect(plan.items.map(\.checkCommand) == [
+            CLICommand(
+                executable: npm,
+                arguments: ["view", "@openai/codex", "version", "--json"],
+                timeout: .seconds(20),
+                capturesOutput: true
+            ),
+            CLICommand(
+                executable: npm,
+                arguments: ["view", "@anthropic-ai/claude-code", "version", "--json"],
+                timeout: .seconds(20),
+                capturesOutput: true
+            ),
+            CLICommand(
+                executable: try #require(executables[.grok]),
+                arguments: ["update", "--check", "--json"],
+                timeout: .seconds(20),
+                capturesOutput: true
+            ),
+            CLICommand(
+                executable: try #require(executables[.cursor]),
+                arguments: ["update"],
+                capturesOutput: true
+            ),
+            CLICommand(
+                executable: try #require(executables[.hermes]),
+                arguments: ["update", "--check"],
+                timeout: .seconds(20),
+                capturesOutput: true
+            ),
+        ])
         #expect(plan.items.map(\.updateCommand) == [
             CLICommand(executable: npm, arguments: ["install", "-g", "--no-audit", "--no-fund", "@openai/codex@latest"]),
             CLICommand(
@@ -40,51 +78,126 @@ struct CLIMaintenanceTests {
                 ]
             ),
             CLICommand(executable: try #require(executables[.grok]), arguments: ["update"]),
-            CLICommand(executable: try #require(executables[.cursor]), arguments: ["update"]),
+            nil,
             CLICommand(executable: try #require(executables[.hermes]), arguments: ["update", "--yes"]),
         ])
     }
 
-    @Test("Maintenance attempts every updater after an earlier failure")
-    func attemptsEveryUpdater() async throws {
+    @Test("An up-to-date CLI is verified without running its updater")
+    func upToDateSkipsUpdater() async throws {
         let fixture = MaintenanceFixture(
-            updateOutcomes: [
-                .exited(status: 1, output: ""),
-                .exited(status: 0, output: ""),
-                .exited(status: 0, output: ""),
-                .exited(status: 0, output: ""),
-            ],
-            verificationOutcomes: Array(
-                repeating: .exited(status: 0, output: "1.0\n"),
-                count: 5
-            )
+            checkOutcomes: [.exited(status: 0, output: "\"1.0.0\"\n")],
+            updateOutcomes: [],
+            verificationOutcomes: [.exited(status: 0, output: "codex-cli 1.0.0\n")],
+            kinds: [.codex]
         )
 
         let report = await fixture.service.perform()
 
-        #expect(await fixture.runner.recordedCommands().filter { $0.arguments.first != "--version" }.count == 5)
-        #expect(report.entries.count == 5)
-        #expect(report.isLaunchable)
+        let commands = await fixture.runner.recordedCommands()
+        #expect(commands.filter { $0.executable.path.hasPrefix("/updates/") }.isEmpty)
+        #expect(try #require(report.entries.first).state == .ready(version: "codex-cli 1.0.0"))
+    }
+
+    @Test("A newer available version runs exactly one updater and verifies the result")
+    func newerVersionRunsUpdater() async throws {
+        let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "\"1.1.0\"\n")],
+            updateOutcomes: [.exited(status: 0, output: "")],
+            verificationOutcomes: [
+                .exited(status: 0, output: "codex-cli 1.0.0\n"),
+                .exited(status: 0, output: "codex-cli 1.1.0\n"),
+            ],
+            kinds: [.codex]
+        )
+
+        let report = await fixture.service.perform()
+
+        let commands = await fixture.runner.recordedCommands()
+        #expect(commands.filter { $0.executable.path.hasPrefix("/updates/") }.count == 1)
+        #expect(try #require(report.entries.first).state == .ready(version: "codex-cli 1.1.0"))
+    }
+
+    @Test("Grok JSON update availability runs its updater")
+    func grokUpdateAvailabilityRunsUpdater() async throws {
+        let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "{\"updateAvailable\":true}")],
+            updateOutcomes: [.exited(status: 0, output: "")],
+            verificationOutcomes: [
+                .exited(status: 0, output: "grok 1.0.5"),
+                .exited(status: 0, output: "grok 1.0.6"),
+            ],
+            kinds: [.grok]
+        )
+
+        let report = await fixture.service.perform()
+
+        #expect(await fixture.runner.recordedCommands().filter {
+            $0.executable.path.hasPrefix("/updates/")
+        }.count == 1)
+        #expect(try #require(report.entries.first).state == .ready(version: "grok 1.0.6"))
+    }
+
+    @Test("A failed version check never invokes the updater and keeps a verified alias")
+    func failedCheckSkipsUpdater() async throws {
+        let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "unexpected response")],
+            updateOutcomes: [],
+            verificationOutcomes: [.exited(status: 0, output: "codex-cli 1.0.0")],
+            kinds: [.codex]
+        )
+
+        let report = await fixture.service.perform()
+
+        #expect(await fixture.runner.recordedCommands().filter {
+            $0.executable.path.hasPrefix("/updates/")
+        }.isEmpty)
+        #expect(try #require(report.entries.first).state == .readyWithWarning(version: "codex-cli 1.0.0"))
+    }
+
+    @Test("A native self-checking updater is not invoked twice")
+    func selfCheckingUpdaterRunsOnce() async throws {
+        let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "Already up to date")],
+            updateOutcomes: [],
+            verificationOutcomes: [
+                .exited(status: 0, output: "2026.08.11"),
+                .exited(status: 0, output: "2026.08.11"),
+            ],
+            kinds: [.cursor]
+        )
+
+        let report = await fixture.service.perform()
+        let commands = await fixture.runner.recordedCommands()
+
+        #expect(commands.filter { $0.executable.path.hasPrefix("/checks/") }.count == 1)
+        #expect(commands.filter { $0.executable.path.hasPrefix("/updates/") }.isEmpty)
+        #expect(try #require(report.entries.first).state == .ready(version: "2026.08.11"))
     }
 
     @Test("A failed update is a warning when the canonical alias verifies")
     func verifiedFallbackIsWarning() async throws {
         let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "\"1.1.0\"\n")],
             updateOutcomes: [.exited(status: 7, output: "")],
-            verificationOutcomes: [.exited(status: 0, output: "codex-cli 1.0\n")],
+            verificationOutcomes: [
+                .exited(status: 0, output: "codex-cli 1.0.0\n"),
+                .exited(status: 0, output: "codex-cli 1.0.0\n"),
+            ],
             kinds: [.codex]
         )
 
         let report = await fixture.service.perform()
         let entry = try #require(report.entries.first)
 
-        #expect(entry.state == .readyWithWarning(version: "codex-cli 1.0"))
+        #expect(entry.state == .readyWithWarning(version: "codex-cli 1.0.0"))
         #expect(!report.isLaunchable)
     }
 
     @Test("A broken canonical alias blocks terminal launch")
     func brokenAliasBlocksLaunch() async throws {
         let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "Already up to date\n")],
             updateOutcomes: [.exited(status: 0, output: "")],
             verificationOutcomes: [.exited(status: 1, output: "")],
             kinds: [.claude]
@@ -100,6 +213,10 @@ struct CLIMaintenanceTests {
     @Test("Alias repair failure blocks verification without hiding later CLIs")
     func repairFailureStillContinues() async throws {
         let fixture = MaintenanceFixture(
+            checkOutcomes: [
+                .exited(status: 0, output: "\"1.0.0\""),
+                .exited(status: 0, output: "{\"updateAvailable\":false}"),
+            ],
             updateOutcomes: [
                 .exited(status: 0, output: ""),
                 .exited(status: 0, output: ""),
@@ -120,10 +237,17 @@ struct CLIMaintenanceTests {
     @Test("Progress reports each active CLI and one completed terminal state")
     func reportsOrderedProgress() async {
         let fixture = MaintenanceFixture(
+            checkOutcomes: [
+                .exited(status: 0, output: "\"1.0.0\""),
+                .exited(status: 0, output: "\"1.0.0\""),
+                .exited(status: 0, output: "{\"updateAvailable\":false}"),
+                .exited(status: 0, output: "Already up to date"),
+                .exited(status: 0, output: "Up to date"),
+            ],
             updateOutcomes: Array(repeating: .exited(status: 0, output: ""), count: 5),
             verificationOutcomes: Array(
                 repeating: .exited(status: 0, output: "1.0\n"),
-                count: 5
+                count: 6
             )
         )
         let recorder = ProgressRecorder()
@@ -133,8 +257,9 @@ struct CLIMaintenanceTests {
         }
 
         let values = await recorder.values
-        #expect(values.map(\.activeKind) == [.codex, .claude, .grok, .cursor, .hermes, nil])
-        #expect(values.map(\.completedCount) == [0, 1, 2, 3, 4, 5])
+        #expect(values.first?.stage == .checking)
+        #expect(values.last?.activeKind == nil)
+        #expect(values.last?.completedCount == 5)
         #expect(values.last?.entries.map(\.kind) == AgentKind.allCases)
     }
 
@@ -160,6 +285,7 @@ struct CLIMaintenanceTests {
     @Test("A pre-cancelled maintenance pass starts no updater")
     func preCancelledPassStartsNothing() async {
         let fixture = MaintenanceFixture(
+            checkOutcomes: Array(repeating: .exited(status: 0, output: "Up to date"), count: 5),
             updateOutcomes: Array(repeating: .exited(status: 0, output: ""), count: 5),
             verificationOutcomes: Array(
                 repeating: .exited(status: 0, output: "1.0"),
@@ -181,8 +307,12 @@ struct CLIMaintenanceTests {
     @Test("A retained fallback is a warning even when the updater exits zero")
     func retainedFallbackWarnsAfterSuccessfulUpdater() async throws {
         let fixture = MaintenanceFixture(
+            checkOutcomes: [.exited(status: 0, output: "\"1.1.0\"")],
             updateOutcomes: [.exited(status: 0, output: "")],
-            verificationOutcomes: [.exited(status: 0, output: "codex-cli 1.0")],
+            verificationOutcomes: [
+                .exited(status: 0, output: "codex-cli 1.0.0"),
+                .exited(status: 0, output: "codex-cli 1.1.0"),
+            ],
             kinds: [.codex],
             fallbackKinds: [.codex]
         )
@@ -190,7 +320,7 @@ struct CLIMaintenanceTests {
         let report = await fixture.service.perform()
         let entry = try #require(report.entries.first)
 
-        #expect(entry.state == .readyWithWarning(version: "codex-cli 1.0"))
+        #expect(entry.state == .readyWithWarning(version: "codex-cli 1.1.0"))
     }
 }
 
@@ -208,6 +338,7 @@ private struct MaintenanceFixture {
     let service: CLIMaintenanceService
 
     init(
+        checkOutcomes: [CLICommandOutcome],
         updateOutcomes: [CLICommandOutcome],
         verificationOutcomes: [CLICommandOutcome],
         kinds: [AgentKind] = AgentKind.allCases,
@@ -215,6 +346,7 @@ private struct MaintenanceFixture {
         fallbackKinds: Set<AgentKind> = []
     ) {
         let runner = StubCLICommandRunner(
+            checkOutcomes: checkOutcomes,
             updateOutcomes: updateOutcomes,
             verificationOutcomes: verificationOutcomes
         )
@@ -223,13 +355,26 @@ private struct MaintenanceFixture {
             fallbackKinds: fallbackKinds
         )
         let items = kinds.map { kind in
-            CLIMaintenanceItem(
+            let checkFormat: CLIUpdateCheckFormat = switch kind {
+            case .codex, .claude: .semanticVersion
+            case .grok: .grokJSON
+            case .cursor: .selfInstalling
+            case .hermes: .hermesText
+            }
+            return CLIMaintenanceItem(
                 kind: kind,
                 aliasURL: URL(fileURLWithPath: "/aliases/\(kind.executableName)"),
+                checkCommand: CLICommand(
+                    executable: URL(fileURLWithPath: "/checks/\(kind.executableName)"),
+                    arguments: ["check"],
+                    timeout: .seconds(20),
+                    capturesOutput: true
+                ),
                 updateCommand: CLICommand(
                     executable: URL(fileURLWithPath: "/updates/\(kind.executableName)"),
                     arguments: ["update"]
-                )
+                ),
+                updateCheckFormat: checkFormat
             )
         }
 
@@ -244,14 +389,17 @@ private struct MaintenanceFixture {
 }
 
 private actor StubCLICommandRunner: CLICommandRunning {
+    private var checks: [CLICommandOutcome]
     private var updates: [CLICommandOutcome]
     private var verifications: [CLICommandOutcome]
     private var commands: [CLICommand] = []
 
     init(
+        checkOutcomes: [CLICommandOutcome],
         updateOutcomes: [CLICommandOutcome],
         verificationOutcomes: [CLICommandOutcome]
     ) {
+        checks = checkOutcomes
         updates = updateOutcomes
         verifications = verificationOutcomes
     }
@@ -262,6 +410,11 @@ private actor StubCLICommandRunner: CLICommandRunning {
             return verifications.isEmpty
                 ? .failedToStart("Missing verification fixture")
                 : verifications.removeFirst()
+        }
+        if command.executable.path.hasPrefix("/checks/") {
+            return checks.isEmpty
+                ? .failedToStart("Missing update-check fixture")
+                : checks.removeFirst()
         }
         return updates.isEmpty
             ? .failedToStart("Missing update fixture")

@@ -19,15 +19,23 @@
 		2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */; };
 		319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */; };
 		356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */; };
+		5279563EE574EB0A89E0B3E2 /* CodexUsageReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */; };
+		53E24CDEAE71F8193861E67C /* CLIUsageState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */; };
+		5688B6C28ACED0BF917074C3 /* CLIUsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98F90953CEBE598A999445D /* CLIUsageBar.swift */; };
 		580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */; };
 		5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F09989D6485780AC62902D3D /* Assets.xcassets */; };
+		697AD3D36B519764CF58F94B /* CLIUsageReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3AE6841314956AB4B7D399 /* CLIUsageReading.swift */; };
 		69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */; };
+		7956F5D4A5C975C03BD96944 /* CLIUsageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */; };
+		7CA1CDE8289438DDE975850A /* CLIUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */; };
 		8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3267808F54D7281E9B2925 /* AgentGridApp.swift */; };
+		9FF2A10301CD371C6FFE3D2B /* CodexUsageResponseParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */; };
 		B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D973387604B7B18995BF892F /* RuntimePolicy.swift */; };
 		B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */; };
 		B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */; };
 		B7954FDF945C9DACFDB54DE3 /* CLIMaintenanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */; };
 		BB2ED68A253D0626B21857E7 /* CLICommandRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */; };
+		C1CBD41BDCE723D6FD479128 /* CLIUsageSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44B9603151413A47C3F0FB2 /* CLIUsageSegment.swift */; };
 		CD15571A5FF8B59D5D8B3D93 /* TerminalGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D8F6081C34369B072DB218 /* TerminalGridView.swift */; };
 		CD683735411A176BD98DAE27 /* AgentLaunchCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */; };
 		CD7466DBC0AB2C7D3A6EFAD9 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 3317315DECEF1587FB81D3E4 /* SwiftTerm */; };
@@ -56,6 +64,7 @@
 		1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryResolverTests.swift; sourceTree = "<group>"; };
 		232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLaunchGate.swift; sourceTree = "<group>"; };
 		3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunner.swift; sourceTree = "<group>"; };
+		319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageReader.swift; sourceTree = "<group>"; };
 		3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceTests.swift; sourceTree = "<group>"; };
 		389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunnerTests.swift; sourceTree = "<group>"; };
 		5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentGridWorkspaceView.swift; sourceTree = "<group>"; };
@@ -70,14 +79,21 @@
 		7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryResolver.swift; sourceTree = "<group>"; };
 		8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMaximizer.swift; sourceTree = "<group>"; };
 		8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicyTests.swift; sourceTree = "<group>"; };
+		8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageTests.swift; sourceTree = "<group>"; };
 		92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchCatalogTests.swift; sourceTree = "<group>"; };
 		95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenance.swift; sourceTree = "<group>"; };
 		B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceView.swift; sourceTree = "<group>"; };
+		BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageState.swift; sourceTree = "<group>"; };
 		BF08C99234A7699DEAF178FF /* GridTabStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabStrip.swift; sourceTree = "<group>"; };
 		BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSetupView.swift; sourceTree = "<group>"; };
+		C44B9603151413A47C3F0FB2 /* CLIUsageSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageSegment.swift; sourceTree = "<group>"; };
 		D973387604B7B18995BF892F /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
+		D98F90953CEBE598A999445D /* CLIUsageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageBar.swift; sourceTree = "<group>"; };
+		DF3AE6841314956AB4B7D399 /* CLIUsageReading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageReading.swift; sourceTree = "<group>"; };
 		E6D8F6081C34369B072DB218 /* TerminalGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalGridView.swift; sourceTree = "<group>"; };
+		E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageResponseParser.swift; sourceTree = "<group>"; };
 		F09989D6485780AC62902D3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIUsageModel.swift; sourceTree = "<group>"; };
 		FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,6 +118,7 @@
 				389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */,
 				FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */,
 				3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */,
+				8DD43D8D2535F07967B77DB7 /* CLIUsageTests.swift */,
 				7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */,
 				8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */,
 				7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */,
@@ -123,6 +140,13 @@
 				95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */,
 				6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */,
 				B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */,
+				D98F90953CEBE598A999445D /* CLIUsageBar.swift */,
+				F40AF3854BA1B48A0813BF42 /* CLIUsageModel.swift */,
+				DF3AE6841314956AB4B7D399 /* CLIUsageReading.swift */,
+				C44B9603151413A47C3F0FB2 /* CLIUsageSegment.swift */,
+				BC2C27ED26018F85847F2C26 /* CLIUsageState.swift */,
+				319F39BEB7BD47F91F1080AC /* CodexUsageReader.swift */,
+				E9137E94C9E6C65E87A3545B /* CodexUsageResponseParser.swift */,
 				BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */,
 				685FA8FB5BD7537B088C907E /* GridTabsModel.swift */,
 				BF08C99234A7699DEAF178FF /* GridTabStrip.swift */,
@@ -262,6 +286,7 @@
 				BB2ED68A253D0626B21857E7 /* CLICommandRunnerTests.swift in Sources */,
 				1F05A0ACD4998662419CCE2E /* CLIMaintenanceModelTests.swift in Sources */,
 				319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */,
+				7CA1CDE8289438DDE975850A /* CLIUsageTests.swift in Sources */,
 				1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */,
 				D15F639236C5DE3C7217BB36 /* GridTabsModelTests.swift in Sources */,
 				EF282CAB1C8E49A0839507AA /* RuntimePolicyTests.swift in Sources */,
@@ -282,7 +307,14 @@
 				273354E844CF2237513A6FB6 /* CLIMaintenance.swift in Sources */,
 				B7954FDF945C9DACFDB54DE3 /* CLIMaintenanceModel.swift in Sources */,
 				D9EA5FB034E56E7768FE88B9 /* CLIMaintenanceView.swift in Sources */,
+				5688B6C28ACED0BF917074C3 /* CLIUsageBar.swift in Sources */,
+				7956F5D4A5C975C03BD96944 /* CLIUsageModel.swift in Sources */,
+				697AD3D36B519764CF58F94B /* CLIUsageReading.swift in Sources */,
+				C1CBD41BDCE723D6FD479128 /* CLIUsageSegment.swift in Sources */,
+				53E24CDEAE71F8193861E67C /* CLIUsageState.swift in Sources */,
 				B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */,
+				5279563EE574EB0A89E0B3E2 /* CodexUsageReader.swift in Sources */,
+				9FF2A10301CD371C6FFE3D2B /* CodexUsageResponseParser.swift in Sources */,
 				356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */,
 				D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */,
 				1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */,
@@ -467,7 +499,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -478,7 +510,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;
@@ -491,7 +523,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -502,7 +534,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;

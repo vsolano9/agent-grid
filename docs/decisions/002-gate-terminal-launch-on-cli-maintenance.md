@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted; amended 2026-08-25
 
 ## Date
 
@@ -12,11 +12,11 @@ Accepted
 
 AgentGrid launches unrestricted CLI agents by absolute executable path. Finder launches provide a minimal environment, CLI installers use different stable and versioned locations, and an updater can replace a command between initial resolution and PTY startup. A current Claude installation demonstrated that package presence and a nominally current version do not prove the executable works.
 
-The accepted behavior requires every app launch to attempt all five CLI updates and keep their canonical commands working.
+The accepted behavior requires every app launch to check all five CLIs, update only when a newer release exists, and keep their canonical commands working.
 
 ## Decision
 
-Run one app-owned maintenance transaction before constructing the terminal configuration. The transaction attempts all updates, independently rediscovers and preflights provider executables, atomically repairs `~/.local/bin` launchers, verifies each launcher with `--version`, and permits terminal setup only when one complete, unique report entry exists for all five commands. Each updater runs in an isolated process group so timeout or cancellation terminates its descendants as well as its root process; cancellation also prevents later updater commands from starting. Discovery or candidate rejection never displaces a verified provider-plausible fallback, and fallback use always produces a warning. Hermes retains an environment-sanitizing launcher rather than linking terminals directly into its Python virtual environment.
+Run one app-owned maintenance transaction before constructing the terminal configuration. The transaction performs each provider's official version check, invokes an updater only after a positive result, independently rediscovers and preflights provider executables, atomically repairs `~/.local/bin` launchers, verifies each launcher with `--version`, and permits terminal setup only when one complete, unique report entry exists for all five commands. Cursor Agent is the exception at the command boundary: its official update command performs the version check internally and installs only if needed, so AgentGrid invokes it exactly once. Each updater runs in an isolated process group so timeout or cancellation terminates its descendants as well as its root process; cancellation also prevents later commands from starting. Discovery or candidate rejection never displaces a verified provider-plausible fallback, and fallback use always produces a warning. Hermes retains an environment-sanitizing launcher rather than linking terminals directly into its Python virtual environment.
 
 Update transport failure and executable failure are separate states. An offline or updater failure can degrade to a warning when the existing canonical command still verifies. A missing or non-running command blocks terminal setup and exposes Retry.
 
@@ -36,7 +36,7 @@ This could observe shell aliases, but shell aliases are syntax rather than execu
 
 ## Consequences
 
-- App launch includes network and updater latency, displayed as explicit five-step progress.
+- App launch includes bounded version-check latency; updater latency occurs only when a release is available. The UI labels checking, updating, and verification truthfully.
 - Terminal configuration always uses post-maintenance paths.
 - `~/.local/bin` becomes AgentGrid's canonical executable seam for the five supported CLIs.
 - Offline launch remains usable when the prior installations verify.

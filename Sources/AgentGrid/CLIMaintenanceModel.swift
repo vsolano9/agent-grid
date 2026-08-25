@@ -55,7 +55,12 @@ final class CLIMaintenanceModel {
     private func run() async {
         configuration = nil
         phase = .running(
-            CLIMaintenanceProgress(completedCount: 0, activeKind: nil, entries: [])
+            CLIMaintenanceProgress(
+                completedCount: 0,
+                activeKind: nil,
+                stage: nil,
+                entries: []
+            )
         )
 
         let report = await service.perform { [weak self] progress in

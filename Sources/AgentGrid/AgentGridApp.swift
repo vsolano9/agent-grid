@@ -4,6 +4,7 @@ import SwiftUI
 struct AgentGridApp: App {
     @State private var windowState = AgentGridWindowState()
     @State private var maintenance = CLIMaintenanceModel()
+    @State private var usage = CLIUsageModel()
 
     var body: some Scene {
         Window("AgentGrid", id: "main") {
@@ -12,7 +13,8 @@ struct AgentGridApp: App {
                     AgentGridWorkspaceView(
                         configuration: configuration,
                         isWindowPrepared: windowState.isPrepared,
-                        maintenanceWarnings: maintenance.warningKinds
+                        maintenanceWarnings: maintenance.warningKinds,
+                        usage: usage
                     )
                 } else {
                     CLIMaintenanceView(
