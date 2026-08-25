@@ -64,7 +64,10 @@ final class CLIMaintenanceModel {
             }
         }
 
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled else {
+            phase = .idle
+            return
+        }
         if report.isLaunchable {
             configuration = configurationFactory()
             phase = .ready(report)

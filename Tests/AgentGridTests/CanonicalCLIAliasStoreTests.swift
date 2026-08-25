@@ -46,18 +46,23 @@ struct CanonicalCLIAliasStoreTests {
             .isEmpty)
     }
 
-    @Test("Store preserves a real executable already at the canonical path")
-    func preservesCanonicalExecutable() async throws {
+    @Test("Store replaces a wrong executable at the canonical path")
+    func replacesCanonicalExecutable() async throws {
         let fixture = try AliasFixture()
         defer { fixture.cleanUp() }
         let alias = fixture.alias(named: "cursor-agent")
         try fixture.makeExecutable(at: alias)
-        let store = CanonicalCLIAliasStore(homeDirectory: fixture.home, environment: [:])
+        let target = try fixture.makeExecutable(named: "cursor-agent")
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
 
         let repaired = try await store.repairAlias(for: fixture.item(kind: .cursor))
 
         #expect(repaired == alias)
-        #expect(!FileManager.default.isSymbolicLink(at: alias))
+        #expect(FileManager.default.isSymbolicLink(at: alias))
+        #expect(repaired.resolvingSymlinksInPath() == target.resolvingSymlinksInPath())
     }
 
     @Test("Store preserves a working relative canonical link")
@@ -75,7 +80,10 @@ struct CanonicalCLIAliasStoreTests {
             atPath: alias.path,
             withDestinationPath: relativeTarget
         )
-        let store = CanonicalCLIAliasStore(homeDirectory: fixture.home, environment: [:])
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
 
         let repaired = try await store.repairAlias(for: fixture.item(kind: .grok))
 
@@ -116,6 +124,90 @@ struct CanonicalCLIAliasStoreTests {
         await #expect(throws: CLIAliasError.selfReferentialTarget) {
             try await store.repairAlias(for: fixture.item(kind: .codex))
         }
+    }
+
+    @Test("Store replaces a working alias that points to the wrong CLI")
+    func replacesWrongCLIAlias() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let expected = try fixture.makeExecutable(named: "codex")
+        let wrong = try fixture.makeExecutable(named: "claude")
+        let alias = fixture.alias(named: "codex")
+        try FileManager.default.createDirectory(
+            at: alias.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: wrong)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
+
+        let repaired = try await store.repairAlias(for: fixture.item(kind: .codex))
+
+        #expect(repaired.resolvingSymlinksInPath() == expected.resolvingSymlinksInPath())
+    }
+
+    @Test("Store links to a stable launcher instead of pinning its current target")
+    func preservesStableLauncherIndirection() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let version = try fixture.makeExecutable(named: "grok-version")
+        let stable = fixture.tools.appendingPathComponent("grok")
+        try FileManager.default.createSymbolicLink(at: stable, withDestinationURL: version)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path]
+        )
+
+        let alias = try await store.repairAlias(for: fixture.item(kind: .grok))
+
+        #expect(try FileManager.default.destinationOfSymbolicLink(atPath: alias.path) == stable.path)
+    }
+
+    @Test("Store discovers the newest installed Cursor Agent version")
+    func discoversNewestCursorVersion() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let versions = fixture.home.appendingPathComponent(
+            ".local/share/cursor-agent/versions",
+            isDirectory: true
+        )
+        let older = versions.appendingPathComponent("2026.08.01/cursor-agent")
+        let newest = versions.appendingPathComponent("2026.08.11/cursor-agent")
+        try fixture.makeExecutable(at: older)
+        try fixture.makeExecutable(at: newest)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": ""]
+        )
+
+        let alias = try await store.repairAlias(for: fixture.item(kind: .cursor))
+        let destination = try FileManager.default.destinationOfSymbolicLink(atPath: alias.path)
+
+        #expect(
+            URL(fileURLWithPath: destination).resolvingSymlinksInPath()
+                == newest.resolvingSymlinksInPath()
+        )
+    }
+
+    @Test("Store discovers Hermes inside its managed virtual environment")
+    func discoversHermesVirtualEnvironment() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let hermes = fixture.home.appendingPathComponent(
+            ".hermes/hermes-agent/venv/bin/hermes",
+            isDirectory: false
+        )
+        try fixture.makeExecutable(at: hermes)
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": ""]
+        )
+
+        let alias = try await store.repairAlias(for: fixture.item(kind: .hermes))
+
+        #expect(try FileManager.default.destinationOfSymbolicLink(atPath: alias.path) == hermes.path)
     }
 }
 

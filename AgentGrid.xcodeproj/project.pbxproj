@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */; };
 		1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685FA8FB5BD7537B088C907E /* GridTabsModel.swift */; };
+		11B6FC04A07AD7B3DEEB213D /* CLIExecutableLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E0CE809F5605D5610C792F /* CLIExecutableLocator.swift */; };
 		1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */; };
 		179603EA3FFE4B9ECA868BAC /* TerminalLaunchGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */; };
 		18707C42DD71D702540433E1 /* WindowMaximizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		07E0CE809F5605D5610C792F /* CLIExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIExecutableLocator.swift; sourceTree = "<group>"; };
 		1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchSpec.swift; sourceTree = "<group>"; };
 		17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStoreTests.swift; sourceTree = "<group>"; };
 		1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStore.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */,
 				1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */,
 				3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */,
+				07E0CE809F5605D5610C792F /* CLIExecutableLocator.swift */,
 				95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */,
 				6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */,
 				B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */,
@@ -275,6 +278,7 @@
 				B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */,
 				1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */,
 				69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */,
+				11B6FC04A07AD7B3DEEB213D /* CLIExecutableLocator.swift in Sources */,
 				273354E844CF2237513A6FB6 /* CLIMaintenance.swift in Sources */,
 				B7954FDF945C9DACFDB54DE3 /* CLIMaintenanceModel.swift in Sources */,
 				D9EA5FB034E56E7768FE88B9 /* CLIMaintenanceView.swift in Sources */,

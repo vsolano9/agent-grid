@@ -75,4 +75,33 @@ struct CLICommandRunnerTests {
 
         #expect(await task.value == .cancelled)
     }
+
+    @Test("Timeout terminates updater descendants before they can mutate files")
+    func timeoutTerminatesDescendants() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "AgentGridRunnerTree-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let sentinel = root.appendingPathComponent("survived")
+        let runner = CLICommandRunner(environment: [:], pollInterval: .milliseconds(5))
+
+        let result = await runner.run(
+            CLICommand(
+                executable: URL(fileURLWithPath: "/bin/sh"),
+                arguments: [
+                    "-c",
+                    "(trap '' HUP TERM; sleep 0.15; /usr/bin/touch \"$1\") & sleep 5",
+                    "agentgrid-test",
+                    sentinel.path,
+                ],
+                timeout: .milliseconds(30)
+            )
+        )
+
+        try await Task.sleep(for: .milliseconds(300))
+        #expect(result == .timedOut)
+        #expect(!FileManager.default.fileExists(atPath: sentinel.path))
+    }
 }

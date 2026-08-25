@@ -24,9 +24,9 @@ Official owner documentation provides these update seams:
 
 `CLIMaintenanceService` owns the complete transaction: resolve the current executable, choose the update mechanism, run every updater in a deterministic sequence, repair each canonical link, verify every link, and return one report. Its public interface exposes a single asynchronous maintenance operation; SwiftUI does not know package names, filesystem mechanics, process arguments, or fallback policy.
 
-`CLICommandRunner` is an actor that owns each Foundation `Process` for its entire lifetime. It polls cooperatively, terminates on cancellation or timeout, discards updater output, and captures only bounded version output. No `Process`, pipe, or mutable runner state crosses an actor boundary.
+`CLICommandRunner` is an actor that starts every command in its own POSIX process group. It polls cooperatively, terminates the complete group on cancellation or timeout, discards updater output, and captures only bounded version output. No process handle, pipe, or mutable runner state crosses an actor boundary.
 
-`CanonicalCLIAliasStore` owns `~/.local/bin`. It resolves existing links before broader search paths, refuses to replace a directory, creates the new link beside the destination, and uses an atomic rename so terminals never observe a half-written link. Alias targets must be executable and must not resolve back to the alias itself.
+`CLIExecutableLocator` discovers each provider independently of `~/.local/bin`, including Grok's stable launcher, the newest installed Cursor Agent version, and Hermes Agent's managed virtual environment. `CanonicalCLIAliasStore` never trusts an existing canonical executable as proof of identity: it refuses to replace a directory, creates a fresh link beside the destination, and uses an atomic rename so terminals never observe a half-written link. Stable provider links remain indirect rather than being pinned to their current version target.
 
 `CLIMaintenanceModel` is main-actor UI state. `AgentGridApp` starts its task once, renders an inline maintenance surface while work is active, and constructs `AgentGridConfiguration.live()` only from a launchable report. Retry performs a fresh complete pass. A warning is shown in the setup surface without a startup alert, following Apple's guidance to keep launch problems contextual and actionable.
 
@@ -52,7 +52,7 @@ The deep service is selected because the sequencing and fallback rules are the f
 - A failed update is a warning when the post-update canonical alias still passes `--version`.
 - Missing or failing aliases are blocking. Retry reruns all five updates rather than only the visible failure, preserving the every-launch contract.
 - AgentGrid never edits shell startup files, authentication stores, CLI configuration, or credentials. The existing terminal environment already places `~/.local/bin` first.
-- Subprocesses receive the maintained terminal environment, no shell interpolation, no prompts, and a bounded timeout.
+- Subprocesses receive the maintained terminal environment, no shell interpolation, no prompts, a bounded timeout, and an isolated process group that is fully terminated on timeout or cancellation.
 
 ## Interface and accessibility
 

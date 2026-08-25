@@ -16,7 +16,7 @@ The accepted behavior requires every app launch to attempt all five CLI updates 
 
 ## Decision
 
-Run one app-owned maintenance transaction before constructing the terminal configuration. The transaction attempts all updates, atomically repairs `~/.local/bin` links, verifies each link with `--version`, and permits terminal setup only when all five commands launch.
+Run one app-owned maintenance transaction before constructing the terminal configuration. The transaction attempts all updates, independently rediscovers provider executables, atomically repairs `~/.local/bin` links, verifies each link with `--version`, and permits terminal setup only when one complete, unique report entry exists for all five commands. Each updater runs in an isolated process group so timeout or cancellation terminates its descendants as well as its root process.
 
 Update transport failure and executable failure are separate states. An offline or updater failure can degrade to a warning when the existing canonical command still verifies. A missing or non-running command blocks terminal setup and exposes Retry.
 

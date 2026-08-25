@@ -49,9 +49,16 @@ struct CLIMaintenanceModelTests {
 
     @Test("Warning reports remain launchable and available to the workspace")
     func warningReport() async {
-        let report = CLIMaintenanceReport(entries: [
-            CLIMaintenanceEntry(kind: .codex, state: .readyWithWarning(version: "1.0")),
-        ])
+        let report = CLIMaintenanceReport(
+            entries: AgentKind.allCases.map { kind in
+                CLIMaintenanceEntry(
+                    kind: kind,
+                    state: kind == .codex
+                        ? .readyWithWarning(version: "1.0")
+                        : .ready(version: "1.0")
+                )
+            }
+        )
         let model = CLIMaintenanceModel(
             service: StubCLIMaintenanceService(reports: [report]),
             configurationFactory: { .testValue }
@@ -100,6 +107,27 @@ struct CLIMaintenanceModelTests {
         #expect(model.configuration != nil)
         #expect(await service.callCount == 2)
     }
+
+    @Test("Cancellation returns to idle and a later start can complete")
+    func cancellationCanRestart() async {
+        let service = GatedCLIMaintenanceService(report: .allReady)
+        let model = CLIMaintenanceModel(
+            service: service,
+            configurationFactory: { .testValue }
+        )
+        let first = Task { await model.start() }
+        await service.waitUntilPaused()
+
+        first.cancel()
+        await service.resume()
+        await first.value
+
+        #expect(model.phase == .idle)
+        #expect(model.configuration == nil)
+
+        await model.start()
+        #expect(model.phase == .ready(.allReady))
+    }
 }
 
 private actor StubCLIMaintenanceService: CLIMaintaining {
@@ -122,6 +150,7 @@ private actor GatedCLIMaintenanceService: CLIMaintaining {
     private let report: CLIMaintenanceReport
     private var isPaused = false
     private var continuation: CheckedContinuation<Void, Never>?
+    private var hasPaused = false
 
     init(report: CLIMaintenanceReport) {
         self.report = report
@@ -137,8 +166,11 @@ private actor GatedCLIMaintenanceService: CLIMaintaining {
                 entries: [report.entries[0]]
             )
         )
-        isPaused = true
-        await withCheckedContinuation { continuation = $0 }
+        if !hasPaused {
+            hasPaused = true
+            isPaused = true
+            await withCheckedContinuation { continuation = $0 }
+        }
         return report
     }
 

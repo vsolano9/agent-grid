@@ -37,7 +37,7 @@
 
 **Create:** `Sources/AgentGrid/CLICommandRunner.swift`, `Sources/AgentGrid/CanonicalCLIAliasStore.swift`, `Tests/AgentGridTests/CLICommandRunnerTests.swift`, `Tests/AgentGridTests/CanonicalCLIAliasStoreTests.swift`
 
-1. Add temp-directory tests for successful version capture, nonzero exit, timeout, cancellation, missing executable, link creation, atomic replacement, self-target refusal, and directory refusal.
+1. Add temp-directory tests for successful version capture, nonzero exit, timeout, cancellation, descendant termination, missing executable, provider-aware discovery, link creation, atomic replacement, wrong-target replacement, stable-link indirection, self-target refusal, and directory refusal.
 2. Run both focused suites; expect compile failures at the missing adapter APIs.
 3. Implement the runner as an actor and the alias store with same-directory temporary links plus atomic rename.
 4. Rerun focused suites and the complete suite. Review all concurrency diagnostics before continuing.

@@ -3,7 +3,7 @@ import Foundation
 
 actor CanonicalCLIAliasStore: CLIAliasMaintaining {
     private let homeDirectory: URL
-    private let environment: [String: String]
+    private let locator: CLIExecutableLocator
     private let fileManager = FileManager.default
 
     init(
@@ -11,7 +11,10 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         environment: [String: String] = ProcessInfo.processInfo.environment
     ) {
         self.homeDirectory = homeDirectory
-        self.environment = environment
+        locator = CLIExecutableLocator(
+            homeDirectory: homeDirectory,
+            environment: environment
+        )
     }
 
     func repairAlias(for item: CLIMaintenanceItem) async throws -> URL {
@@ -30,14 +33,9 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         )
 
         if let destination = symbolicLinkDestination(at: aliasURL) {
-            let resolvedDestination = resolved(destination, relativeTo: aliasURL)
-            guard resolvedDestination.standardizedFileURL != aliasURL else {
+            let directDestination = directDestination(destination, relativeTo: aliasURL)
+            guard directDestination.standardizedFileURL != aliasURL else {
                 throw CLIAliasError.selfReferentialTarget
-            }
-
-            if fileManager.isExecutableFile(atPath: resolvedDestination.path) {
-                try replaceAlias(at: aliasURL, with: resolvedDestination)
-                return aliasURL
             }
         } else if fileManager.fileExists(atPath: aliasURL.path) {
             var isDirectory: ObjCBool = false
@@ -45,15 +43,9 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
             if isDirectory.boolValue {
                 throw CLIAliasError.destinationIsDirectory
             }
-            if fileManager.isExecutableFile(atPath: aliasURL.path) {
-                return aliasURL
-            }
         }
 
-        guard let target = executableTarget(
-            named: item.kind.executableName,
-            excluding: canonicalDirectory
-        ) else {
+        guard let target = locator.locate(item.kind) else {
             throw CLIAliasError.noExecutable
         }
         guard target.standardizedFileURL != aliasURL else {
@@ -62,31 +54,6 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
 
         try replaceAlias(at: aliasURL, with: target)
         return aliasURL
-    }
-
-    private func executableTarget(named name: String, excluding aliasDirectory: URL) -> URL? {
-        let pathDirectories = (environment["PATH"] ?? "")
-            .split(separator: ":")
-            .map { URL(fileURLWithPath: String($0), isDirectory: true) }
-        let candidates = pathDirectories
-            + TerminalEnvironment.fallbackDirectories(homeDirectory: homeDirectory)
-
-        var seen = Set<String>()
-        for directory in candidates {
-            let standardizedDirectory = directory.standardizedFileURL
-            guard standardizedDirectory != aliasDirectory,
-                  seen.insert(standardizedDirectory.path).inserted else {
-                continue
-            }
-
-            let candidate = standardizedDirectory
-                .appendingPathComponent(name, isDirectory: false)
-                .resolvingSymlinksInPath()
-            if fileManager.isExecutableFile(atPath: candidate.path) {
-                return candidate
-            }
-        }
-        return nil
     }
 
     private func replaceAlias(at aliasURL: URL, with target: URL) throws {
@@ -111,13 +78,13 @@ actor CanonicalCLIAliasStore: CLIAliasMaintaining {
         try? fileManager.destinationOfSymbolicLink(atPath: url.path)
     }
 
-    private func resolved(_ destination: String, relativeTo aliasURL: URL) -> URL {
+    private func directDestination(_ destination: String, relativeTo aliasURL: URL) -> URL {
         if destination.hasPrefix("/") {
             return URL(fileURLWithPath: destination, isDirectory: false)
-                .resolvingSymlinksInPath()
+                .standardizedFileURL
         }
         return aliasURL.deletingLastPathComponent()
             .appendingPathComponent(destination, isDirectory: false)
-            .resolvingSymlinksInPath()
+            .standardizedFileURL
     }
 }

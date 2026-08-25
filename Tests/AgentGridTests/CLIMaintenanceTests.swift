@@ -79,7 +79,7 @@ struct CLIMaintenanceTests {
         let entry = try #require(report.entries.first)
 
         #expect(entry.state == .readyWithWarning(version: "codex-cli 1.0"))
-        #expect(report.isLaunchable)
+        #expect(!report.isLaunchable)
     }
 
     @Test("A broken canonical alias blocks terminal launch")
@@ -136,6 +136,25 @@ struct CLIMaintenanceTests {
         #expect(values.map(\.activeKind) == [.codex, .claude, .grok, .cursor, .hermes, nil])
         #expect(values.map(\.completedCount) == [0, 1, 2, 3, 4, 5])
         #expect(values.last?.entries.map(\.kind) == AgentKind.allCases)
+    }
+
+    @Test("A partial or duplicate report cannot satisfy the all-CLI launch gate")
+    func rejectsIncompleteReports() {
+        let partial = CLIMaintenanceReport(entries: [
+            CLIMaintenanceEntry(kind: .codex, state: .ready(version: "1.0")),
+        ])
+        let duplicates = CLIMaintenanceReport(
+            entries: Array(
+                repeating: CLIMaintenanceEntry(
+                    kind: .codex,
+                    state: .ready(version: "1.0")
+                ),
+                count: AgentKind.allCases.count
+            )
+        )
+
+        #expect(!partial.isLaunchable)
+        #expect(!duplicates.isLaunchable)
     }
 }
 

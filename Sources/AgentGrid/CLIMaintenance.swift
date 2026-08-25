@@ -145,7 +145,9 @@ struct CLIMaintenanceReport: Equatable, Sendable {
     let entries: [CLIMaintenanceEntry]
 
     var isLaunchable: Bool {
-        !entries.isEmpty && entries.allSatisfy { $0.state.isReady }
+        entries.count == AgentKind.allCases.count
+            && Set(entries.map(\.kind)) == Set(AgentKind.allCases)
+            && entries.allSatisfy { $0.state.isReady }
     }
 
     var warnings: [AgentKind] {
@@ -274,10 +276,14 @@ extension CLIMaintenanceService: CLIMaintaining {
             environment: environment,
             homeDirectory: homeDirectory
         )
+        let cliLocator = CLIExecutableLocator(
+            homeDirectory: homeDirectory,
+            environment: environment
+        )
         let plan = CLIMaintenancePlan.make(
             homeDirectory: homeDirectory,
             npmExecutable: resolver.resolve("npm"),
-            executableForKind: { resolver.resolve($0.executableName) }
+            executableForKind: { cliLocator.locate($0) }
         )
         return Self(
             plan: plan,

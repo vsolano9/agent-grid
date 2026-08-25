@@ -13,6 +13,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `Sources/AgentGrid/RuntimePolicy.swift` | Working-directory and environment policy |
 | `Sources/AgentGrid/CLIMaintenance.swift` | Ordered every-launch updater, verification policy, and report model |
 | `Sources/AgentGrid/CLICommandRunner.swift` | Bounded, cancellable updater and version subprocess execution |
+| `Sources/AgentGrid/CLIExecutableLocator.swift` | Provider-aware executable discovery outside canonical aliases |
 | `Sources/AgentGrid/CanonicalCLIAliasStore.swift` | Atomic `~/.local/bin` alias repair and target safety |
 | `Sources/AgentGrid/CLIMaintenanceModel.swift` | Main-actor launch gate and retry state |
 | `Sources/AgentGrid/CLIMaintenanceView.swift` | Startup progress and blocking failure surface |
