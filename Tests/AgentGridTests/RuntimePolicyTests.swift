@@ -29,7 +29,7 @@ struct RuntimePolicyTests {
         #expect(locator.workspace() == home)
     }
 
-    @Test("Terminal environment adds truecolor and Finder-safe executable paths")
+    @Test("Terminal environment puts canonical CLI aliases ahead of inherited paths")
     func terminalEnvironment() throws {
         let environment = TerminalEnvironment.make(
             base: ["PATH": "/custom/bin", "LANG": "en_US.UTF-8"],
@@ -40,8 +40,8 @@ struct RuntimePolicyTests {
         #expect(environment["TERM"] == "xterm-256color")
         #expect(environment["COLORTERM"] == "truecolor")
         #expect(path.split(separator: ":").map(String.init) == [
-            "/custom/bin",
             "/home/test/.local/bin",
+            "/custom/bin",
             "/home/test/.grok/bin",
             "/home/test/.cursor/bin",
             "/opt/homebrew/bin",

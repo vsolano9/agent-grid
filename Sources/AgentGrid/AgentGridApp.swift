@@ -2,15 +2,28 @@ import SwiftUI
 
 @main
 struct AgentGridApp: App {
-    private let configuration = AgentGridConfiguration.live()
     @State private var windowState = AgentGridWindowState()
+    @State private var maintenance = CLIMaintenanceModel()
 
     var body: some Scene {
         Window("AgentGrid", id: "main") {
-            AgentGridWorkspaceView(
-                configuration: configuration,
-                isWindowPrepared: windowState.isPrepared
-            )
+            Group {
+                if let configuration = maintenance.configuration {
+                    AgentGridWorkspaceView(
+                        configuration: configuration,
+                        isWindowPrepared: windowState.isPrepared,
+                        maintenanceWarnings: maintenance.warningKinds
+                    )
+                } else {
+                    CLIMaintenanceView(
+                        phase: maintenance.phase,
+                        retry: {
+                            Task { await maintenance.retry() }
+                        }
+                    )
+                }
+            }
+                .task { await maintenance.start() }
                 .frame(minWidth: 800, minHeight: 520)
                 .background(WindowMaximizer(state: windowState))
         }

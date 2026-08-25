@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct GridSetupView: View {
     let grid: AgentGridTab
+    let maintenanceWarnings: [AgentKind]
     let setAgent: (AgentKind, AgentPanePosition) -> Void
     let setWorkingDirectory: (URL) -> Void
     let launch: () -> Void
@@ -16,6 +17,9 @@ struct GridSetupView: View {
 
             VStack(spacing: 26) {
                 header
+                if !maintenanceWarnings.isEmpty {
+                    maintenanceWarning
+                }
                 selectors
                 workspaceLocation
 
@@ -57,6 +61,28 @@ struct GridSetupView: View {
                 directoryError = error.localizedDescription
             }
         }
+    }
+
+    private var maintenanceWarning: some View {
+        HStack(spacing: 9) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.yellow)
+                .accessibilityHidden(true)
+
+            Text("Update unavailable for \(warningNames); the installed command was verified and remains available.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.yellow.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+
+    private var warningNames: String {
+        maintenanceWarnings.map(\.displayName).joined(separator: ", ")
     }
 
     private var header: some View {

@@ -39,8 +39,13 @@ enum TerminalEnvironment {
             .split(separator: ":")
             .map(String.init)
         let fallbacks = fallbackDirectories(homeDirectory: homeDirectory).map(\.path)
+        let canonicalAliasDirectory = homeDirectory
+            .appendingPathComponent(".local/bin", isDirectory: true)
+            .path
 
-        environment["PATH"] = unique(existingPath + fallbacks).joined(separator: ":")
+        environment["PATH"] = unique(
+            [canonicalAliasDirectory] + existingPath + fallbacks
+        ).joined(separator: ":")
         environment["TERM"] = "xterm-256color"
         environment["COLORTERM"] = "truecolor"
         return environment

@@ -11,6 +11,11 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `project.yml` | XcodeGen project definition, deployment target, and pinned dependency |
 | `Sources/AgentGrid/AgentLaunchSpec.swift` | Four-slot selection, executable names, and exact YOLO arguments |
 | `Sources/AgentGrid/RuntimePolicy.swift` | Working-directory and environment policy |
+| `Sources/AgentGrid/CLIMaintenance.swift` | Ordered every-launch updater, verification policy, and report model |
+| `Sources/AgentGrid/CLICommandRunner.swift` | Bounded, cancellable updater and version subprocess execution |
+| `Sources/AgentGrid/CanonicalCLIAliasStore.swift` | Atomic `~/.local/bin` alias repair and target safety |
+| `Sources/AgentGrid/CLIMaintenanceModel.swift` | Main-actor launch gate and retry state |
+| `Sources/AgentGrid/CLIMaintenanceView.swift` | Startup progress and blocking failure surface |
 | `Sources/AgentGrid/GridTabsModel.swift` | One-to-six draft/launch tab, naming, selection, and close policy |
 | `Sources/AgentGrid/GridTabStrip.swift` | Custom tab states, shortcuts, motion, and accessibility |
 | `Sources/AgentGrid/GridSetupView.swift` | Four-position CLI, per-grid working-directory, and launch surface |
@@ -22,6 +27,7 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 | `docs/design/2026-08-22-agent-grid-tabs-design.md` | Approved multi-grid interaction and visual contract |
 | `docs/design/2026-08-24-agent-grid-cli-selection-design.md` | Per-grid CLI selection and launch contract |
 | `docs/decisions/001-retain-terminal-grids-in-view-tree.md` | Session-retention architecture decision |
+| `docs/decisions/002-gate-terminal-launch-on-cli-maintenance.md` | Every-launch update and verified-alias gate decision |
 | `docs/design/agent-grid-icon-master.png` | Approved 1024 px icon source |
 | `scripts/generate-app-icon.swift` | Deterministic macOS icon-size generation |
 | `scripts/verify-app-icon.sh` | Compiled bundle icon regression check |
@@ -37,10 +43,14 @@ AgentGrid is a native macOS developer utility. Its single normal window maximize
 - PTYs launch only after their views are attached and have a non-zero layout.
 - The top-left position is the sole initial-focus pane, independent of CLI kind.
 - The per-grid default working directory is `/Volumes/Extreme Pro/Documents/Work`, with home-directory fallback when unavailable.
+- Every app launch attempts official updates for Codex, Claude, Grok, Cursor Agent, and Hermes Agent before terminal configuration exists.
+- `~/.local/bin` is first in terminal `PATH`; its five canonical CLI names are atomically repaired and verified with `--version` on launch.
+- An updater failure is non-blocking only when the repaired alias verifies. An alias failure blocks all terminal launch until Retry succeeds.
+- AgentGrid does not edit shell profiles, credentials, or provider configuration during maintenance.
 - The app does not restart exited agents or persist terminal state.
 - SwiftTerm is pinned to 1.20.0.
 - All catalog icon sizes are generated from the approved master; never redraw them independently.
 
 ## Validation
 
-Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm no child before launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.
+Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five updater attempts, direct success of every canonical alias, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.

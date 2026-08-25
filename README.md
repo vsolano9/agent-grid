@@ -8,17 +8,33 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 | Claude | `--dangerously-skip-permissions` |
 | Grok | `--always-approve` |
 | Cursor Agent | `--yolo` |
+| Hermes Agent | `--yolo` |
 
-Every position is independent, so combinations such as four Codex sessions are supported. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, settings, or app-owned services.
+Every position is independent, so combinations such as four Codex sessions are supported. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
+
+Before terminal setup appears, AgentGrid updates Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order, repairs their stable aliases under `~/.local/bin`, and verifies every alias with `--version`. A failed update is shown as a warning when the installed command still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
 ## Requirements
 
 - macOS 15 or newer
 - Xcode 26 or newer to build
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)
-- Each CLI you intend to select installed and authenticated: `codex`, `claude`, `grok`, or `cursor-agent`
+- Codex, Claude, Grok, Cursor Agent, and Hermes Agent installed
+- Network access on launch when CLI updates are available
 
-The app searches the inherited `PATH` plus common Homebrew and user CLI folders. A missing command produces a normal `env` error inside only that pane.
+The app places `~/.local/bin` first in every terminal's `PATH`. It resolves updater targets from the inherited `PATH` plus common Homebrew and user CLI folders, then maintains these canonical commands:
+
+```text
+~/.local/bin/codex
+~/.local/bin/claude
+~/.local/bin/grok
+~/.local/bin/cursor-agent
+~/.local/bin/hermes
+```
+
+AgentGrid does not edit shell startup files. If maintenance cannot resolve or verify a command, install that CLI through its official installer and select Retry.
+
+Authentication and model/provider setup remain owned by each CLI. A newly installed Hermes pane opens its normal provider setup prompt until `hermes setup` has been completed.
 
 ## Working directory
 
@@ -55,7 +71,7 @@ The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/Sw
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, selections, or telemetry.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid itself stores no credentials, history, prompts, terminal state, selections, or telemetry. Startup maintenance invokes only each provider's official updater and `--version`; it does not change authentication or provider configuration.
 
 ## License
 

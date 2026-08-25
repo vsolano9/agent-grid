@@ -5,6 +5,7 @@ enum AgentKind: String, CaseIterable, Equatable, Hashable, Sendable {
     case claude
     case grok
     case cursor
+    case hermes
 
     var displayName: String {
         switch self {
@@ -12,6 +13,7 @@ enum AgentKind: String, CaseIterable, Equatable, Hashable, Sendable {
         case .claude: "Claude"
         case .grok: "Grok"
         case .cursor: "Cursor Agent"
+        case .hermes: "Hermes Agent"
         }
     }
 
@@ -21,6 +23,7 @@ enum AgentKind: String, CaseIterable, Equatable, Hashable, Sendable {
         case .claude: "claude"
         case .grok: "grok"
         case .cursor: "cursor-agent"
+        case .hermes: "hermes"
         }
     }
 
@@ -30,6 +33,7 @@ enum AgentKind: String, CaseIterable, Equatable, Hashable, Sendable {
         case .claude: ["--dangerously-skip-permissions"]
         case .grok: ["--always-approve"]
         case .cursor: ["--yolo"]
+        case .hermes: ["--yolo"]
         }
     }
 }
@@ -52,7 +56,9 @@ enum AgentPanePosition: Int, CaseIterable, Equatable, Hashable, Sendable {
 
 struct AgentGridSelection: Equatable, Sendable {
     static let paneCount = 4
-    static let standard = AgentGridSelection(uncheckedAgents: AgentKind.allCases)
+    static let standard = AgentGridSelection(
+        uncheckedAgents: [.codex, .claude, .grok, .cursor]
+    )
 
     let agents: [AgentKind]
 
@@ -96,7 +102,22 @@ enum AgentLaunchCatalog {
         workspace: URL,
         resolver: some ExecutableResolving
     ) -> [AgentLaunchSpec] {
-        selection.agents.map { kind in
+        make(kinds: selection.agents, workspace: workspace, resolver: resolver)
+    }
+
+    static func makeSupported(
+        workspace: URL,
+        resolver: some ExecutableResolving
+    ) -> [AgentLaunchSpec] {
+        make(kinds: AgentKind.allCases, workspace: workspace, resolver: resolver)
+    }
+
+    private static func make(
+        kinds: [AgentKind],
+        workspace: URL,
+        resolver: some ExecutableResolving
+    ) -> [AgentLaunchSpec] {
+        kinds.map { kind in
             let resolvedExecutable = resolver.resolve(kind.executableName)
             let executable = resolvedExecutable
                 ?? URL(fileURLWithPath: "/usr/bin/env", isDirectory: false)

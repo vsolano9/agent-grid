@@ -9,22 +9,31 @@
 /* Begin PBXBuildFile section */
 		1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */; };
 		1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685FA8FB5BD7537B088C907E /* GridTabsModel.swift */; };
+		1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */; };
 		179603EA3FFE4B9ECA868BAC /* TerminalLaunchGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */; };
 		18707C42DD71D702540433E1 /* WindowMaximizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */; };
 		1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */; };
+		1F05A0ACD4998662419CCE2E /* CLIMaintenanceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */; };
+		273354E844CF2237513A6FB6 /* CLIMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */; };
 		2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */; };
+		319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */; };
 		356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */; };
 		580A21BEFCF966D4154F9F8F /* TerminalPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D8E75CA13B70F0B77A7DC1F /* TerminalPane.swift */; };
 		5CA789EF6AF38499BBBC49AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F09989D6485780AC62902D3D /* Assets.xcassets */; };
+		69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */; };
 		8A1126ED411F18AA21F1436B /* AgentGridApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3267808F54D7281E9B2925 /* AgentGridApp.swift */; };
 		B3510EDC6DCBD006F5A3DD58 /* RuntimePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D973387604B7B18995BF892F /* RuntimePolicy.swift */; };
 		B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */; };
+		B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */; };
+		B7954FDF945C9DACFDB54DE3 /* CLIMaintenanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */; };
+		BB2ED68A253D0626B21857E7 /* CLICommandRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */; };
 		CD15571A5FF8B59D5D8B3D93 /* TerminalGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D8F6081C34369B072DB218 /* TerminalGridView.swift */; };
 		CD683735411A176BD98DAE27 /* AgentLaunchCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */; };
 		CD7466DBC0AB2C7D3A6EFAD9 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 3317315DECEF1587FB81D3E4 /* SwiftTerm */; };
 		D15F639236C5DE3C7217BB36 /* GridTabsModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */; };
 		D7E1C7432FD7D3935B74A2A7 /* AgentGridWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */; };
 		D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF08C99234A7699DEAF178FF /* GridTabStrip.swift */; };
+		D9EA5FB034E56E7768FE88B9 /* CLIMaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */; };
 		EF282CAB1C8E49A0839507AA /* RuntimePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -40,12 +49,18 @@
 
 /* Begin PBXFileReference section */
 		1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchSpec.swift; sourceTree = "<group>"; };
+		17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStoreTests.swift; sourceTree = "<group>"; };
+		1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalCLIAliasStore.swift; sourceTree = "<group>"; };
 		1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryResolverTests.swift; sourceTree = "<group>"; };
 		232C1B49BFB7297C2080BCA6 /* TerminalLaunchGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLaunchGate.swift; sourceTree = "<group>"; };
+		3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunner.swift; sourceTree = "<group>"; };
+		3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceTests.swift; sourceTree = "<group>"; };
+		389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLICommandRunnerTests.swift; sourceTree = "<group>"; };
 		5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentGridWorkspaceView.swift; sourceTree = "<group>"; };
 		5F46F0467A85F0704DEEC72E /* AgentGrid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgentGrid.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		685FA8FB5BD7537B088C907E /* GridTabsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabsModel.swift; sourceTree = "<group>"; };
 		6A3267808F54D7281E9B2925 /* AgentGridApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentGridApp.swift; sourceTree = "<group>"; };
+		6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceModel.swift; sourceTree = "<group>"; };
 		719FC54600DCD272460660EC /* AgentGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgentGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabsModelTests.swift; sourceTree = "<group>"; };
 		7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLaunchGateTests.swift; sourceTree = "<group>"; };
@@ -54,11 +69,14 @@
 		8BC33B6AB5EB0B4C4C2BD71E /* WindowMaximizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowMaximizer.swift; sourceTree = "<group>"; };
 		8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicyTests.swift; sourceTree = "<group>"; };
 		92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentLaunchCatalogTests.swift; sourceTree = "<group>"; };
+		95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenance.swift; sourceTree = "<group>"; };
+		B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceView.swift; sourceTree = "<group>"; };
 		BF08C99234A7699DEAF178FF /* GridTabStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridTabStrip.swift; sourceTree = "<group>"; };
 		BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridSetupView.swift; sourceTree = "<group>"; };
 		D973387604B7B18995BF892F /* RuntimePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePolicy.swift; sourceTree = "<group>"; };
 		E6D8F6081C34369B072DB218 /* TerminalGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalGridView.swift; sourceTree = "<group>"; };
 		F09989D6485780AC62902D3D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIMaintenanceModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +96,10 @@
 			children = (
 				92978357FAA40330925114E3 /* AgentLaunchCatalogTests.swift */,
 				1CF7A4500D257E3FB5F9596D /* BinaryResolverTests.swift */,
+				17B8F2B8AE52194EE37B5119 /* CanonicalCLIAliasStoreTests.swift */,
+				389348583F44BEAA3AE2CEB7 /* CLICommandRunnerTests.swift */,
+				FBAE5F14C578CA4A582AB2C8 /* CLIMaintenanceModelTests.swift */,
+				3485DA8FFF230B37068D356D /* CLIMaintenanceTests.swift */,
 				7416EBEEECE83C6ED9943954 /* GridTabsModelTests.swift */,
 				8C013B03686BCC93312BCB04 /* RuntimePolicyTests.swift */,
 				7901F0EBF252B35F788116D5 /* TerminalLaunchGateTests.swift */,
@@ -93,6 +115,11 @@
 				5BD5C2FA18DF52D2AEECDACE /* AgentGridWorkspaceView.swift */,
 				1446E5785014B91BC320C7BF /* AgentLaunchSpec.swift */,
 				7DFCF3650301F5EF3EB5ED2E /* BinaryResolver.swift */,
+				1BF32A23562ED3F2B9373F87 /* CanonicalCLIAliasStore.swift */,
+				3082235AB29CAD4500FA9F14 /* CLICommandRunner.swift */,
+				95DEBDEED61C2ADC137726A5 /* CLIMaintenance.swift */,
+				6DECEBD4B01C9305076BF66C /* CLIMaintenanceModel.swift */,
+				B7F32FEC2A03D83FCE8CC53E /* CLIMaintenanceView.swift */,
 				BF63FF2CD51C5EEB48B8DCCB /* GridSetupView.swift */,
 				685FA8FB5BD7537B088C907E /* GridTabsModel.swift */,
 				BF08C99234A7699DEAF178FF /* GridTabStrip.swift */,
@@ -229,6 +256,10 @@
 			files = (
 				CD683735411A176BD98DAE27 /* AgentLaunchCatalogTests.swift in Sources */,
 				2CA96D2513B722EF236A6DC4 /* BinaryResolverTests.swift in Sources */,
+				BB2ED68A253D0626B21857E7 /* CLICommandRunnerTests.swift in Sources */,
+				1F05A0ACD4998662419CCE2E /* CLIMaintenanceModelTests.swift in Sources */,
+				319D39AD265D94429B631276 /* CLIMaintenanceTests.swift in Sources */,
+				1495371B743946CBF0202BFD /* CanonicalCLIAliasStoreTests.swift in Sources */,
 				D15F639236C5DE3C7217BB36 /* GridTabsModelTests.swift in Sources */,
 				EF282CAB1C8E49A0839507AA /* RuntimePolicyTests.swift in Sources */,
 				1CAD21157E2EACBE54D5E9F8 /* TerminalLaunchGateTests.swift in Sources */,
@@ -243,6 +274,11 @@
 				D7E1C7432FD7D3935B74A2A7 /* AgentGridWorkspaceView.swift in Sources */,
 				B5BB22491AFA0F0F9D151A57 /* AgentLaunchSpec.swift in Sources */,
 				1084F52A758498C28652BB9F /* BinaryResolver.swift in Sources */,
+				69F3BF00E9E790A0C81E30F1 /* CLICommandRunner.swift in Sources */,
+				273354E844CF2237513A6FB6 /* CLIMaintenance.swift in Sources */,
+				B7954FDF945C9DACFDB54DE3 /* CLIMaintenanceModel.swift in Sources */,
+				D9EA5FB034E56E7768FE88B9 /* CLIMaintenanceView.swift in Sources */,
+				B7015DE218A359A3453707BC /* CanonicalCLIAliasStore.swift in Sources */,
 				356C1C8A2B48FC0F8031376C /* GridSetupView.swift in Sources */,
 				D87234B4C9E16E0A93E05F5E /* GridTabStrip.swift in Sources */,
 				1119CC0A95F94290199EB742 /* GridTabsModel.swift in Sources */,
@@ -427,7 +463,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -438,7 +474,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;
@@ -451,7 +487,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -462,7 +498,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thechosenvictor.AgentGrid;
 				PRODUCT_NAME = AgentGrid;
 				SDKROOT = macosx;

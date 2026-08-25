@@ -2,7 +2,7 @@
 
 ## Outcome
 
-AgentGrid shows a four-slot CLI setup surface for Grid 1 on every app launch and for every grid created with `+` or `⌘T`. Each slot independently selects Codex, Claude, Grok, or Cursor Agent, so duplicate combinations such as four Codex sessions are valid. Each draft also chooses its own working directory, with Work as the default. Terminals start only after the user activates the grid.
+AgentGrid shows a four-slot CLI setup surface for Grid 1 on every app launch and for every grid created with `+` or `⌘T`. Each slot independently selects Codex, Claude, Grok, Cursor Agent, or Hermes Agent, so duplicate combinations such as four Codex sessions are valid. Each draft also chooses its own working directory, with Work as the default. Terminals start only after the user activates the grid.
 
 The default terminal working directory remains `/Volumes/Extreme Pro/Documents/Work`, while a native folder chooser allows a different directory per grid before launch. This change does not add settings, persistence, telemetry, credentials, or app-owned services.
 

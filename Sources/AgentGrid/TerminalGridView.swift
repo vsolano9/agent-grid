@@ -49,7 +49,10 @@ struct AgentGridConfiguration: Sendable {
         let workspace = WorkspaceLocator(homeDirectory: homeDirectory).workspace()
 
         return Self(
-            catalog: AgentLaunchCatalog.make(workspace: workspace, resolver: resolver),
+            catalog: AgentLaunchCatalog.makeSupported(
+                workspace: workspace,
+                resolver: resolver
+            ),
             environment: environment,
             workspace: workspace
         )

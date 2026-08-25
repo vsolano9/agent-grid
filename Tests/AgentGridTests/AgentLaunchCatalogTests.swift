@@ -31,6 +31,25 @@ struct AgentLaunchCatalogTests {
         #expect(specs.allSatisfy { $0.workingDirectory == workspace })
     }
 
+    @Test("Hermes Agent can occupy any terminal pane in YOLO mode")
+    func hermesSelection() throws {
+        let workspace = URL(fileURLWithPath: "/work")
+        let selection = try #require(
+            AgentGridSelection(agents: [.hermes, .codex, .hermes, .claude])
+        )
+
+        let specs = AgentLaunchCatalog.make(
+            selection: selection,
+            workspace: workspace,
+            resolver: StubExecutableResolver()
+        )
+
+        #expect(specs.map(\.kind) == [.hermes, .codex, .hermes, .claude])
+        #expect(specs[0].executable.path == "/test-bin/hermes")
+        #expect(specs[0].arguments == ["--yolo"])
+        #expect(specs[2].arguments == ["--yolo"])
+    }
+
     @Test("Live configuration expands a frozen duplicate selection without re-resolving")
     func configurationExpandsSelection() throws {
         let workspace = URL(fileURLWithPath: "/work")
@@ -87,6 +106,28 @@ struct AgentLaunchCatalogTests {
         #expect(specs.map(\.kind) == [.codex, .claude, .grok, .cursor])
     }
 
+    @Test("Supported catalog covers every selectable CLI, including Hermes")
+    func supportedCatalog() throws {
+        let workspace = URL(fileURLWithPath: "/work")
+        let catalog = AgentLaunchCatalog.makeSupported(
+            workspace: workspace,
+            resolver: StubExecutableResolver()
+        )
+        let configuration = AgentGridConfiguration(
+            catalog: catalog,
+            environment: [:],
+            workspace: workspace
+        )
+        let selection = try #require(
+            AgentGridSelection(agents: [.hermes, .codex, .claude, .grok])
+        )
+
+        #expect(catalog.map(\.kind) == AgentKind.allCases)
+        #expect(configuration.launchSpecs(for: selection).map(\.kind) == [
+            .hermes, .codex, .claude, .grok,
+        ])
+    }
+
     @Test(
         "Each CLI receives its exact YOLO arguments",
         arguments: [
@@ -94,10 +135,15 @@ struct AgentLaunchCatalogTests {
             (AgentKind.claude, ["--dangerously-skip-permissions"]),
             (AgentKind.grok, ["--always-approve"]),
             (AgentKind.cursor, ["--yolo"]),
+            (AgentKind.hermes, ["--yolo"]),
         ]
     )
     func yoloArguments(kind: AgentKind, expected: [String]) throws {
+        let selection = try #require(
+            AgentGridSelection(agents: [kind, .codex, .claude, .grok])
+        )
         let specs = AgentLaunchCatalog.make(
+            selection: selection,
             workspace: URL(fileURLWithPath: "/work"),
             resolver: StubExecutableResolver()
         )
