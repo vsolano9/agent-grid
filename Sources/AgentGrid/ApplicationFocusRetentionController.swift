@@ -22,6 +22,7 @@ final class ApplicationFocusRetentionController<C: Clock> where C.Duration == Du
     private static var leaseDuration: Duration { .milliseconds(1_500) }
     private static var decisionDelay: Duration { .milliseconds(120) }
     private static var retryDelay: Duration { .milliseconds(250) }
+    private static var maximumRecoveryDuration: Duration { .seconds(5) }
 
     private let clock: C
     private let activationClient: FocusActivationClient
@@ -32,6 +33,7 @@ final class ApplicationFocusRetentionController<C: Clock> where C.Duration == Du
     private var decisionTask: Task<Void, Never>?
     private var retryTask: Task<Void, Never>?
     private var rekeyTask: Task<Void, Never>?
+    private var recoveryDeadline: C.Instant?
 
     private(set) var state: FocusRetentionState = .disarmed
     private(set) var isEnabled = true
@@ -153,8 +155,9 @@ final class ApplicationFocusRetentionController<C: Clock> where C.Duration == Du
 
         leaseExpiresAt = nil
         state = .recovering(processIdentifier: processIdentifier)
+        recoveryDeadline = clock.now.advanced(by: Self.maximumRecoveryDuration)
         requestActivation(processIdentifier: processIdentifier)
-        scheduleRetry(processIdentifier: processIdentifier)
+        continueRecoveryIfNeeded(processIdentifier: processIdentifier)
     }
 
     private func requestActivation(processIdentifier: pid_t) {
@@ -187,8 +190,23 @@ final class ApplicationFocusRetentionController<C: Clock> where C.Duration == Du
                   !self.activationClient.isApplicationActive else {
                 return
             }
+            guard let recoveryDeadline = self.recoveryDeadline,
+                  self.clock.now < recoveryDeadline else {
+                self.recoveryDeadline = nil
+                self.state = .disarmed
+                return
+            }
             self.requestActivation(processIdentifier: processIdentifier)
+            self.continueRecoveryIfNeeded(processIdentifier: processIdentifier)
         }
+    }
+
+    private func continueRecoveryIfNeeded(processIdentifier: pid_t) {
+        guard state == .recovering(processIdentifier: processIdentifier),
+              !activationClient.isApplicationActive else {
+            return
+        }
+        scheduleRetry(processIdentifier: processIdentifier)
     }
 
     private func cancelRecovery() {
@@ -198,6 +216,7 @@ final class ApplicationFocusRetentionController<C: Clock> where C.Duration == Du
         retryTask = nil
         rekeyTask?.cancel()
         rekeyTask = nil
+        recoveryDeadline = nil
     }
 }
 

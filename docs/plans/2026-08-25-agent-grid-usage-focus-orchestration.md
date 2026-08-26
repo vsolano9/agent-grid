@@ -271,7 +271,7 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
    - an activation within the lease is allowed and disarms until AgentGrid returns;
    - expired/no lease requests AgentGrid activation and re-keys its existing window;
    - the decision waits 120 milliseconds for asynchronous global input delivery;
-   - repeat steals coalesce and allow at most one 250-millisecond retry;
+   - repeat steals coalesce into one recovery sequence that retries every 250 milliseconds for at most five seconds;
    - explicit user switch never triggers delayed reacquisition;
    - disable/enable focus-retention command and observer cleanup.
 2. Add the helper application target with bundle ID `com.thechosenvictor.AgentGridFocusStealFixture`. In `--programmatic` mode it self-activates after launch; normal mode has one explicit activation button and an obvious fixture-only label.

@@ -127,8 +127,8 @@ struct ApplicationFocusRetentionTests {
         #expect(fixture.client.rekeyCount == 1)
     }
 
-    @Test("repeat steals coalesce and recovery retries at most once after 250 milliseconds")
-    func coalescesAndRetriesOnce() async throws {
+    @Test("repeat steals coalesce into one recovery sequence")
+    func repeatStealsCoalesceIntoOneRecoverySequence() async throws {
         let fixture = makeArmedFocusFixture()
         fixture.client.isApplicationActive = false
 
@@ -142,11 +142,73 @@ struct ApplicationFocusRetentionTests {
         fixture.controller.applicationDidActivate(processIdentifier: 44)
         fixture.clock.advance(by: .milliseconds(250))
         try await eventuallyFocus { fixture.client.activationCount == 2 }
-        fixture.clock.advance(by: .seconds(1))
+        try await waitForSleep(fixture.clock, count: 1)
+
+        fixture.clock.advance(by: .milliseconds(250))
+        try await eventuallyFocus { fixture.client.activationCount == 3 }
+        try await waitForSleep(fixture.clock, count: 1)
+
+        #expect(fixture.client.activationCount == 3)
+        #expect(fixture.client.rekeyCount >= 2)
+        #expect(fixture.clock.pendingSleeperCount == 1)
+    }
+
+    @Test("a slow browser launch remains recoverable beyond the first retry")
+    func slowBrowserLaunchRemainsRecoverable() async throws {
+        let fixture = makeArmedFocusFixture()
+        fixture.client.isApplicationActive = false
+        fixture.client.onActivate = {
+            guard fixture.client.activationCount == 3 else { return }
+            fixture.client.isApplicationActive = true
+            fixture.controller.applicationDidActivate(
+                processIdentifier: fixture.client.processIdentifier
+            )
+        }
+
+        fixture.controller.applicationDidActivate(processIdentifier: 42)
+        try await waitForSleep(fixture.clock, count: 1)
+        fixture.clock.advance(by: .milliseconds(120))
+        try await eventuallyFocus { fixture.client.activationCount == 1 }
+
+        try await waitForSleep(fixture.clock, count: 1)
+        fixture.clock.advance(by: .milliseconds(250))
+        try await eventuallyFocus { fixture.client.activationCount == 2 }
+
+        try await waitForSleep(fixture.clock, count: 1)
+        fixture.clock.advance(by: .milliseconds(250))
+        try await eventuallyFocus { fixture.client.activationCount == 3 }
+
+        #expect(fixture.client.isApplicationActive)
+        #expect(fixture.controller.state == .armed)
+    }
+
+    @Test("an unresponsive app cannot create an unbounded focus war")
+    func unresponsiveAppRecoveryIsBounded() async throws {
+        let fixture = makeArmedFocusFixture()
+        fixture.client.isApplicationActive = false
+
+        fixture.controller.applicationDidActivate(processIdentifier: 42)
+        try await waitForSleep(fixture.clock, count: 1)
+        fixture.clock.advance(by: .milliseconds(120))
+        try await eventuallyFocus { fixture.client.activationCount == 1 }
+
+        for expectedCount in 2...20 {
+            try await waitForSleep(fixture.clock, count: 1)
+            fixture.clock.advance(by: .milliseconds(250))
+            try await eventuallyFocus { fixture.client.activationCount == expectedCount }
+        }
+
+        try await waitForSleep(fixture.clock, count: 1)
+        fixture.clock.advance(by: .milliseconds(250))
         await settleFocusTasks()
 
-        #expect(fixture.client.activationCount == 2)
-        #expect(fixture.client.rekeyCount == 2)
+        #expect(fixture.client.activationCount == 20)
+        #expect(fixture.clock.pendingSleeperCount == 0)
+        #expect(fixture.controller.state == .disarmed)
+
+        fixture.clock.advance(by: .seconds(10))
+        await settleFocusTasks()
+        #expect(fixture.client.activationCount == 20)
     }
 
     @Test("an explicit switch lease arriving during the decision delay prevents reacquisition")
