@@ -179,12 +179,11 @@ struct CLIMaintenancePlan: Equatable, Sendable {
             )
         }
 
-        guard let executable, kind != .cursor else { return nil }
+        guard let executable, kind != .cursor, kind != .hermes else { return nil }
         if npmExecutable == nil, (kind == .codex || kind == .claude) {
             return nil
         }
-        let arguments = kind == .hermes ? ["update", "--yes"] : ["update"]
-        return CLICommand(executable: executable, arguments: arguments)
+        return CLICommand(executable: executable, arguments: ["update"])
     }
 
     private static func updateCheckFormat(

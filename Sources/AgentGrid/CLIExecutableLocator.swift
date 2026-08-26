@@ -73,7 +73,14 @@ struct CLIExecutableLocator: Sendable {
                     isDirectory: false
                 ),
             ]
-        case .codex, .claude:
+        case .codex:
+            return [
+                homeDirectory.appendingPathComponent(
+                    ".codex/packages/standalone/current/codex",
+                    isDirectory: false
+                ),
+            ]
+        case .claude:
             return []
         }
     }

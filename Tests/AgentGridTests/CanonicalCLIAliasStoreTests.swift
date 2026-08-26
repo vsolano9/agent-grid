@@ -191,6 +191,27 @@ struct CanonicalCLIAliasStoreTests {
         )
     }
 
+    @Test("Store prefers the managed Codex standalone over a broken PATH launcher")
+    func prefersManagedCodexStandalone() async throws {
+        let fixture = try AliasFixture()
+        defer { fixture.cleanUp() }
+        let managed = fixture.home.appendingPathComponent(
+            ".codex/packages/standalone/current/codex",
+            isDirectory: false
+        )
+        try fixture.makeExecutable(at: managed)
+        _ = try fixture.makeExecutable(named: "codex")
+        let store = CanonicalCLIAliasStore(
+            homeDirectory: fixture.home,
+            environment: ["PATH": fixture.tools.path],
+            verifiesExecutable: { $0 == managed }
+        )
+
+        let alias = try await store.repairAlias(for: fixture.item(kind: .codex)).aliasURL
+
+        #expect(alias.resolvingSymlinksInPath() == managed.resolvingSymlinksInPath())
+    }
+
     @Test("Store discovers Hermes inside its managed virtual environment")
     func discoversHermesVirtualEnvironment() async throws {
         let fixture = try AliasFixture()

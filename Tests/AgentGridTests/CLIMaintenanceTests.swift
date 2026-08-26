@@ -79,8 +79,42 @@ struct CLIMaintenanceTests {
             ),
             CLICommand(executable: try #require(executables[.grok]), arguments: ["update"]),
             nil,
-            CLICommand(executable: try #require(executables[.hermes]), arguments: ["update", "--yes"]),
+            nil,
         ])
+    }
+
+    @Test("Hermes update availability warns without mutating a custom installation")
+    func hermesUpdateAvailabilityIsNonMutating() async throws {
+        let home = URL(fileURLWithPath: "/home/test", isDirectory: true)
+        let executables = Dictionary(
+            uniqueKeysWithValues: AgentKind.allCases.map { kind in
+                (kind, URL(fileURLWithPath: "/tools/\(kind.executableName)"))
+            }
+        )
+        let plan = CLIMaintenancePlan.make(
+            homeDirectory: home,
+            npmExecutable: nil,
+            executableForKind: { executables[$0] }
+        )
+        let runner = HermesUpdatePolicyRunner()
+        let service = CLIMaintenanceService(
+            plan: plan,
+            runner: runner,
+            aliasStore: StubCLIAliasStore(repairFailures: [:], fallbackKinds: [])
+        )
+
+        let report = await service.perform()
+
+        let commands = await runner.recordedCommands()
+        #expect(!commands.contains { command in
+            command.executable.lastPathComponent == "hermes"
+                && command.arguments == ["update", "--yes"]
+        })
+        #expect(
+            try #require(report.entries.first { $0.kind == .hermes }).state
+                == .readyWithWarning(version: "1.0.0")
+        )
+        #expect(report.isLaunchable)
     }
 
     @Test("An up-to-date CLI is verified without running its updater")
@@ -329,6 +363,32 @@ private actor ProgressRecorder {
 
     func append(_ value: CLIMaintenanceProgress) {
         values.append(value)
+    }
+}
+
+private actor HermesUpdatePolicyRunner: CLICommandRunning {
+    private var commands: [CLICommand] = []
+
+    func run(_ command: CLICommand) -> CLICommandOutcome {
+        commands.append(command)
+        return switch command.arguments {
+        case ["--version"]:
+            .exited(status: 0, output: "1.0.0")
+        case ["update", "--check", "--json"]:
+            .exited(status: 0, output: #"{"updateAvailable":false}"#)
+        case ["update", "--check"]:
+            .exited(status: 0, output: "Update available")
+        case ["update", "--yes"]:
+            .exited(status: 1, output: "Updater must not run")
+        case ["update"]:
+            .exited(status: 0, output: "Already up to date")
+        default:
+            .failedToStart("Unexpected command")
+        }
+    }
+
+    func recordedCommands() -> [CLICommand] {
+        commands
     }
 }
 
