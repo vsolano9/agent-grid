@@ -190,14 +190,14 @@ struct ProviderUsageReaderTests {
         )))
     }
 
-    @Test("Claude CLI usage maps account and named model windows")
+    @Test("Claude CLI usage maps account and named model windows with reset suffixes")
     func claudeCLIUsageMapsAllWindows() throws {
         let payload = Data(#"""
         You are currently using your subscription to power your Claude Code usage
 
-        Current session: 12% used
-        Current week (all models): 34% used
-        Current week (Fable): 56% used
+        Current session: 0% used · resets Aug 26 at 3:40pm (Europe/Berlin)
+        Current week (all models): 0% used · resets Sep 1 at 9pm (Europe/Berlin)
+        Current week (Fable): 0% used
 
         Last 24h · 195 requests · 18 sessions
           Top skills: /i-have-adhd 11%
@@ -209,9 +209,9 @@ struct ProviderUsageReaderTests {
         )
 
         #expect(observation.windows.compactMap(availableValue) == [
-            window(.claude, "five_hour", "5 hr", 88),
-            window(.claude, "seven_day", "Weekly", 66),
-            window(.claude, "seven_day_fable", "Fable", 44),
+            window(.claude, "five_hour", "5 hr", 100),
+            window(.claude, "seven_day", "Weekly", 100),
+            window(.claude, "seven_day_fable", "Fable", 100),
         ])
     }
 

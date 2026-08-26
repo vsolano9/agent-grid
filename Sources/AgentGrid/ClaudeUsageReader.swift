@@ -307,7 +307,7 @@ enum ClaudeUsageParser {
 
     private static func cliRemainingPercent(_ value: String) -> Int? {
         let expression = try? NSRegularExpression(
-            pattern: #"^([0-9]+(?:\.[0-9]+)?)\s*%\s*(used|left|remaining)$"#,
+            pattern: #"^([0-9]+(?:\.[0-9]+)?)\s*%\s*(used|left|remaining)(?:\s*·\s*resets\b.*)?$"#,
             options: .caseInsensitive
         )
         let range = NSRange(value.startIndex..<value.endIndex, in: value)
