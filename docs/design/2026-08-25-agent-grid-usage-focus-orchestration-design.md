@@ -195,11 +195,11 @@ Costs:
 
 - AppKit global monitors never receive events dispatched to AgentGrid itself, so one global monitor cannot classify every switch gesture. Key-related events on the global monitor require Accessibility trust; local events and globally monitored mouse events do not have that documented requirement.
 - Activation and global event notifications are asynchronous, so the controller needs a bounded decision delay and cannot rely on polling a race-prone `NSRunningApplication` property.
-- macOS activation is cooperative; `NSApp.activate()` is a request, not an absolute guarantee.
+- Cooperative activation cannot recover from a non-yielding browser automation steal; bounded recovery therefore force-activates only after the explicit-intent decision window closes.
 
 ### Selection
 
-Approach B is selected because it is complete at the app boundary and preserves unrestricted PTYs. It uses modern cooperative activation APIs and never uses deprecated `activateIgnoringOtherApps`.
+Approach B is selected because it is complete at the app boundary and preserves unrestricted PTYs. Explicit-switch intent always disarms recovery; when no intent lease exists, the bounded recovery adapter uses `activateIgnoringOtherApps` because browser automation does not yield activation cooperatively.
 
 ## Focus state machine
 

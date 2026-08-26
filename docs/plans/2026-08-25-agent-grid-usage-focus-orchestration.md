@@ -286,7 +286,7 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
    ```
 
    Expected red reason: no application focus state machine, event adapter, or helper target exists.
-4. Implement the `@MainActor` controller and narrow AppKit adapter. Install both `NSEvent.addLocalMonitorForEvents` and `NSEvent.addGlobalMonitorForEvents`: the local handler observes AgentGrid-dispatched events and returns them unchanged; the global handler observes outside mouse events and adds key events only when Accessibility is trusted. Use `NSWorkspace.didActivateApplicationNotification`, modern `NSApp.activate()`, and the existing main window. Never call `activateIgnoringOtherApps`.
+4. Implement the `@MainActor` controller and narrow AppKit adapter. Install both `NSEvent.addLocalMonitorForEvents` and `NSEvent.addGlobalMonitorForEvents`: the local handler observes AgentGrid-dispatched events and returns them unchanged; the global handler observes outside mouse events and adds key events only when Accessibility is trusted. Use `NSWorkspace.didActivateApplicationNotification` and the existing main window. The postflight browser-automation repair uses `activateIgnoringOtherApps` only after the explicit-intent decision window closes because cooperative activation cannot recover from a non-yielding app.
 5. Add `Commands` menu items for `Allow Next App Switch` and focus retention on/off with accessible titles/shortcuts. Do not add a settings sidebar or disturb terminal shortcuts.
 6. Run focus, runtime policy, terminal focus, and tab suites. Build the helper and main app.
 7. Reserve the real programmatic/click/Command-Tab/typing matrix for Task 9 manual validation; do not treat unit tests as visual proof.

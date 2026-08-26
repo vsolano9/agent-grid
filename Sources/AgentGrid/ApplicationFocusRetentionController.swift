@@ -223,7 +223,7 @@ final class AppKitFocusActivationClient: FocusActivationClient {
     }
 
     func activate() {
-        NSApp.activate()
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     func rekeyMainWindow() {

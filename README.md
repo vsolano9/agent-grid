@@ -20,7 +20,7 @@ A 32-point four-column status strip along the bottom shows the label and remaini
 
 Usage refreshes immediately at launch, every 60 seconds while AgentGrid is active, and immediately after activation, workspace or screen wake, and network recovery. Periodic reads suspend while inactive. Concurrent triggers coalesce, and provider-local failures back off independently without suppressing healthy providers. The refresh button requests a fresh reading within the same coalescing and backoff policy.
 
-Focus Retention is enabled by default. It rejects short-lived programmatic attempts to steal the active AgentGrid window while leaving explicit clicks and Command-Tab app switches alone. Use **Focus → Allow Next App Switch** (`⌃⌥⌘A`) for the next intentional switch or **Focus → Disable Focus Retention** (`⌃⌥⌘F`) to turn retention off. AgentGrid uses modern cooperative AppKit activation and never the deprecated force-activation API.
+Focus Retention is enabled by default. It rejects short-lived programmatic attempts to steal the active AgentGrid window while leaving explicit clicks and Command-Tab app switches alone. Use **Focus → Allow Next App Switch** (`⌃⌥⌘A`) for the next intentional switch or **Focus → Disable Focus Retention** (`⌃⌥⌘F`) to turn retention off. After its bounded intent-classification delay, AgentGrid force-activates only to recover from a switch that was not user-authorized; the explicit-switch lease always wins.
 
 ## Requirements
 
