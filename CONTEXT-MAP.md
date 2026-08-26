@@ -14,7 +14,7 @@ Still open: installed-app manual matrix cases not yet directly exercised, includ
 
 | Path | Purpose |
 | --- | --- |
-| `project.yml` | XcodeGen project definition, deployment target, and pinned dependency |
+| `project.yml` | XcodeGen project definition, deployment target, and repo-owned SwiftTerm dependency |
 | `Sources/AgentGrid/AgentLaunchSpec.swift` | Four-slot selection, executable names, and exact YOLO arguments |
 | `Sources/AgentGrid/RuntimePolicy.swift` | Working-directory and environment policy |
 | `Sources/AgentGrid/CLIMaintenance.swift` | Ordered every-launch version checks, conditional updater, alias verification policy, and report model |
@@ -43,7 +43,9 @@ Still open: installed-app manual matrix cases not yet directly exercised, includ
 | `Sources/AgentGrid/GridTabStrip.swift` | Custom tab states, shortcuts, motion, and accessibility |
 | `Sources/AgentGrid/GridSetupView.swift` | Four-position CLI, per-grid working-directory, and launch surface |
 | `Sources/AgentGrid/AgentGridWorkspaceView.swift` | Tab strip and retained terminal-deck composition |
-| `Sources/AgentGrid/TerminalPane.swift` | SwiftTerm/AppKit bridge and PTY lifecycle |
+| `Sources/AgentGrid/TerminalPane.swift` | SwiftTerm/AppKit bridge and awaitable PTY lifecycle |
+| `Sources/AgentGrid/TerminalResourcePolicy.swift` | Explicit per-pane scrollback and inline-image memory bounds |
+| `Vendor/SwiftTerm/` | SwiftTerm 1.20.0 source snapshot plus bounded Kitty transfer and PTY-reap patch |
 | `Sources/AgentGrid/WindowMaximizer.swift` | Normal maximized-window behavior |
 | `Tests/AgentGridTests/` | Launch, resolution, environment, window, and lifecycle contracts |
 | `docs/design/2026-08-22-agent-grid-design.md` | Approved product and visual design |
@@ -66,7 +68,8 @@ Still open: installed-app manual matrix cases not yet directly exercised, includ
 - Each numbered grid's four CLI choices are saved immediately to a versioned UserDefaults record and restored when that grid number is created on a later app launch. Invalid records fall back to the standard layout.
 - Every new grid defaults to `/Volumes/Extreme Pro/Documents/Work`; a different folder may be chosen independently before launch.
 - Launch freezes that grid's CLI and working-directory selections. Running grids are not reconfigured in place.
-- One to six grids may be open. Switching keeps every running PTY mounted and every draft selection intact; closing a running tab terminates and reaps exactly its four children.
+- One to six grids may be open. Switching keeps every running PTY mounted and every draft selection intact, hides inactive AppKit terminal views to suppress redraw work, and preserves their live sessions. Closing a running tab starts bounded teardown: SwiftTerm remains the sole owner that reaps each forkpty leader, while AgentGrid records and identity-checks observed descendants (including process-group and session escapes) before TERM-to-KILL escalation.
+- Every pane keeps the existing 500-line text scrollback, accepts at most 8 MiB of decoded data in one Kitty image transfer, and retains at most 32 MiB of decoded inline-image cache. The retained-image accounting ceiling is 384 MiB for 12 panes and 768 MiB at the 24-pane application maximum; it is not a bound on total process RSS. The final Release AppKit/PTY stress fixture measured about 128, 338, 621, and 1,173 MiB peak process RSS for 1, 4, 12, and 24 panes respectively, plus separately measured descendant peaks of about 10, 40, 121, and 242 MiB under its fixed workload and cycles.
 - PTYs launch only after their views are attached and have a non-zero layout.
 - The top-left position is the sole initial-focus pane, independent of CLI kind.
 - The per-grid default working directory is `/Volumes/Extreme Pro/Documents/Work`, with home-directory fallback when unavailable.
@@ -83,9 +86,9 @@ Still open: installed-app manual matrix cases not yet directly exercised, includ
 - Focus retention rejects bounded programmatic activation steals but disarms for explicit clicks, Command-Tab switches, and the one-shot **Allow Next App Switch** command. After the intent-classification delay, recovery uses `activateIgnoringOtherApps` because non-yielding automation ignores cooperative activation; force activation is never used while an explicit-switch lease is valid.
 - Accessibility preflight is quiet. Permission UI is user-initiated, and protected-file readiness appears only after a real required read returns `EPERM` or `EACCES`. Stable local releases use the fixed app path, Apple Development team `9UKJNG8B38`, hardened runtime, and no App Sandbox; macOS consent cannot be granted in code.
 - The app does not restart exited agents or persist terminal state, working directories, prompts, or credentials.
-- SwiftTerm is pinned to 1.20.0.
+- The repo owns an MIT-licensed SwiftTerm 1.20.0 source snapshot from upstream commit `5d14406844143538cd8f8851d2d8a67c1fe443e5`; its narrow AgentGrid patch bounds Kitty APC/chunk/base64/inflate/pixel allocations before growth and leaves the 400 MiB upstream-compatible default for other embedders.
 - All catalog icon sizes are generated from the approved master; never redraw them independently.
 
 ## Validation
 
-Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five version checks, no updater invocation for current versions, updater invocation for an available version, direct success of every canonical alias, every real provider window/reset, 60-second foreground and lifecycle recovery behavior, provider/window stale isolation, explicit-switch-safe focus retention, permission readiness from actual denials, no Hermes quota segment, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, four-child teardown without zombies, visible terminal output, and a non-fullscreen visible-frame window.
+Regenerate `AgentGrid.xcodeproj` after changing `project.yml` or adding source files. Use the `AgentGrid` scheme for macOS tests and builds. Runtime validation must confirm all five version checks, no updater invocation for current versions, updater invocation for an available version, direct success of every canonical alias, every real provider window/reset, 60-second foreground and lifecycle recovery behavior, provider/window stale isolation, explicit-switch-safe focus retention, permission readiness from actual denials, no Hermes quota segment, no terminal child before maintenance and grid launch, duplicate selection support, exact process arguments per grid, the permanent Work cwd, stable PIDs through tab switches, selected-grid input focus, sole-owner leader reaping and identity-safe teardown of tracked descendants without tracked survivors, bounded 1/4/12/24-pane high-output memory under actual close/reopen cycles, visible terminal output, and a non-fullscreen visible-frame window. macOS provides no subreaper or job object, so teardown cannot guarantee discovery of a descendant that reparents before it is observed; validation must not describe that platform limit as complete-tree ownership.

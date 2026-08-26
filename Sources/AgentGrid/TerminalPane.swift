@@ -17,7 +17,7 @@ struct TerminalPane: NSViewRepresentable {
         let terminal = LaunchingTerminalView(
             frame: .zero,
             font: .monospacedSystemFont(ofSize: 13, weight: .regular),
-            options: .default
+            options: TerminalResourcePolicy.options
         )
         terminal.processDelegate = context.coordinator
         terminal.nativeBackgroundColor = NSColor(white: 0.025, alpha: 1)
@@ -78,6 +78,7 @@ final class LaunchingTerminalView: LocalProcessTerminalView {
     private var launchHandler: (() -> Void)?
     private var isWindowPrepared = false
     private var shouldFocusWhenAttached = false
+    private var cleanupTask: Task<ProcessTreeTerminationResult, Never>?
 
     func launchWhenReady(_ handler: @escaping () -> Void) {
         launchHandler = handler
@@ -85,6 +86,7 @@ final class LaunchingTerminalView: LocalProcessTerminalView {
     }
 
     func updateGridActivation(isActive: Bool, prefersFocus: Bool) {
+        isHidden = !isActive
         setAccessibilityHidden(!isActive)
 
         if !isActive {
@@ -105,15 +107,30 @@ final class LaunchingTerminalView: LocalProcessTerminalView {
         scheduleLaunchIfReady()
     }
 
-    func terminateAndReap() {
+    @discardableResult
+    func terminateAndReap() -> Task<ProcessTreeTerminationResult, Never>? {
+        if let cleanupTask { return cleanupTask }
         NSObject.cancelPreviousPerformRequests(
             withTarget: self,
             selector: #selector(performDeferredLaunch),
             object: nil
         )
         let pid = process.shellPid
-        terminate()
-        ChildProcessReaper.live.reap(pid)
+        guard pid > 0 else {
+            terminate()
+            return nil
+        }
+        let process = process!
+        let treeTask = ProcessTreeTerminator.live.beginTermination(rootPID: pid) { completion in
+            process.terminate(completion: completion)
+        }
+        let retainedTask = Task { [process] in
+            let result = await treeTask.value
+            _ = process
+            return result
+        }
+        cleanupTask = retainedTask
+        return retainedTask
     }
 
     override func viewDidMoveToWindow() {

@@ -8,8 +8,7 @@ options:
 
 packages:
   SwiftTerm:
-    url: https://github.com/migueldeicaza/SwiftTerm.git
-    exactVersion: 1.20.0
+    path: Vendor/SwiftTerm
 
 settings:
   base:
@@ -19,6 +18,28 @@ settings:
     CLANG_ENABLE_MODULES: YES
 
 targets:
+  TerminalViewMemoryStressFixture:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Tests/Fixtures/TerminalViewMemoryStressFixture
+    dependencies:
+      - package: SwiftTerm
+    settings:
+      base:
+        PRODUCT_NAME: TerminalViewMemoryStressFixture
+
+  TerminalMemoryStressFixture:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Tests/Fixtures/TerminalMemoryStressFixture
+    dependencies:
+      - package: SwiftTerm
+    settings:
+      base:
+        PRODUCT_NAME: TerminalMemoryStressFixture
+
   FakeGrokACP:
     type: tool
     platform: macOS
@@ -85,6 +106,8 @@ targets:
     dependencies:
       - target: AgentGrid
       - target: FakeGrokACP
+      - target: TerminalMemoryStressFixture
+      - target: TerminalViewMemoryStressFixture
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thechosenvictor.AgentGridTests
@@ -93,6 +116,20 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
 
 schemes:
+  TerminalMemoryStressFixture:
+    build:
+      targets:
+        TerminalMemoryStressFixture: all
+    run:
+      config: Release
+
+  TerminalViewMemoryStressFixture:
+    build:
+      targets:
+        TerminalViewMemoryStressFixture: all
+    run:
+      config: Release
+
   AgentGrid:
     build:
       targets:

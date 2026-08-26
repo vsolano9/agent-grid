@@ -29,14 +29,17 @@ The module must own these invariants: one to six grids, stable identity for ever
 
 ## Decision
 
-Use Design A. `GridTabsModel` is the public behavior seam for add, select, and close policy. `TerminalGridDeck` renders every open `TerminalGridView` as a stable peer in a `ZStack`; opacity, hit testing, and accessibility expose only the selected grid. `TerminalPane` receives active state and lets only the leading Codex terminal claim first responder on an inactive-to-active transition. On close, `ChildProcessReaper` waits for each exact child PID on a utility queue so an immediately dismantled SwiftTerm view cannot leave a zombie process.
+Use Design A. `GridTabsModel` is the public behavior seam for add, select, and close policy. `TerminalGridDeck` renders every open `TerminalGridView` as a stable peer in a `ZStack`; opacity, hit testing, accessibility, and AppKit visibility expose only the selected grid. `TerminalPane` receives active state and lets only the leading Codex terminal claim first responder on an inactive-to-active transition.
+
+On close, `TerminalPane` starts one coalesced, awaitable cleanup task per pane. The repo-owned SwiftTerm `LocalProcess` remains the sole `waitpid` owner for the forkpty leader. AgentGrid snapshots descendant identities (PID, start time, UID, parent, and process group), signals the original group only while the leader identity still matches, and individually escalates still-matching descendants on a bounded utility task. This avoids racing the dependency's leader reap and avoids signaling an unrelated process after PID reuse.
 
 This design preserves the existing, validated `NSViewRepresentable` creation and teardown behavior. It hides real tab policy without introducing an abstraction for an unproven alternate terminal backend.
 
 ## Consequences
 
-- Hidden grids continue rendering terminal output and consuming the resources of four CLI processes; the six-grid cap makes that cost explicit and bounded.
+- Hidden grids keep their four CLI processes and live PTYs, but their AppKit terminal views are hidden to suppress inactive redraw work; the six-grid cap makes the retained session cost explicit.
 - Switching tabs does not recreate or terminate PTYs.
-- Closing a tab removes its retained view subtree, terminates exactly those four processes, and reaps them without blocking the UI.
+- Closing a tab removes its retained view subtree, starts bounded identity-safe teardown of each forkpty leader and every descendant observed before or during the grace interval, and exposes the result without blocking the UI. SwiftTerm reaps the four leaders; non-child descendants can only be observed to exit.
+- macOS has no subreaper or process job object. A descendant that double-forks and reparents before the bounded snapshots observe it cannot be guaranteed by ancestry-based cleanup, so this design does not claim universal descendant ownership.
 - Focus transfer is a lifecycle concern in `TerminalPane`, not a repeated rule in tab buttons.
 - Session persistence across app relaunch remains out of scope.
