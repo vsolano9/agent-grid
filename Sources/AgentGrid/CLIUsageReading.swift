@@ -185,6 +185,12 @@ actor CLIUsageService: CLIUsageReading {
             base: environment,
             homeDirectory: homeDirectory
         )
+        var claudeEnvironment = terminalEnvironment
+        if claudeEnvironment["CLAUDE_CONFIG_DIR"]?.isEmpty != false {
+            claudeEnvironment["CLAUDE_CONFIG_DIR"] = homeDirectory
+                .appendingPathComponent(".claude", isDirectory: true)
+                .path
+        }
         let transport = URLSessionProviderUsageHTTPTransport()
         return Self(readers: [
             .codex: CodexUsageReader(
@@ -197,7 +203,9 @@ actor CLIUsageService: CLIUsageReading {
                     homeDirectory: homeDirectory,
                     permissionReporter: permissionReporter
                 ),
-                transport: transport
+                transport: transport,
+                cliExecutable: homeDirectory.appendingPathComponent(".local/bin/claude"),
+                cliRunner: CLICommandRunner(environment: claudeEnvironment)
             ),
             .grok: GrokUsageReader(
                 executable: homeDirectory.appendingPathComponent(".local/bin/grok"),

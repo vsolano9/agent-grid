@@ -190,6 +190,76 @@ struct ProviderUsageReaderTests {
         )))
     }
 
+    @Test("Claude CLI usage maps account and named model windows")
+    func claudeCLIUsageMapsAllWindows() throws {
+        let payload = Data(#"""
+        You are currently using your subscription to power your Claude Code usage
+
+        Current session: 12% used
+        Current week (all models): 34% used
+        Current week (Fable): 56% used
+
+        Last 24h · 195 requests · 18 sessions
+          Top skills: /i-have-adhd 11%
+        """#.utf8)
+
+        let observation = try ClaudeUsageParser.parseObservation(
+            from: payload,
+            fetchedAt: Date(timeIntervalSince1970: 100)
+        )
+
+        #expect(observation.windows.compactMap(availableValue) == [
+            window(.claude, "five_hour", "5 hr", 88),
+            window(.claude, "seven_day", "Weekly", 66),
+            window(.claude, "seven_day_fable", "Fable", 44),
+        ])
+    }
+
+    @Test("live Claude reader prefers the installed CLI usage surface")
+    func liveClaudeReaderPrefersCLIUsage() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "agentgrid-claude-cli-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+        let executable = root.appendingPathComponent(".local/bin/claude")
+        let configDirectory = root.appendingPathComponent(".claude", isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: executable.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: configDirectory,
+            withIntermediateDirectories: true
+        )
+        let script = """
+        #!/bin/sh
+        [ "$1" = "/usage" ] || exit 64
+        [ "$CLAUDE_CONFIG_DIR" = "\(configDirectory.path)" ] || exit 65
+        printf '%s\n' \
+          'Current session: 12% used' \
+          'Current week (all models): 34% used' \
+          'Current week (Fable): 56% used'
+        """
+        try Data(script.utf8).write(to: executable)
+        try FileManager.default.setAttributes(
+            [.posixPermissions: 0o700],
+            ofItemAtPath: executable.path
+        )
+        try Data(#"{"claudeAiOauth":{"accessToken":"invalid-test-token","expiresAt":9999999999999}}"#.utf8)
+            .write(to: configDirectory.appendingPathComponent(".credentials.json"))
+        var environment = ProcessInfo.processInfo.environment
+        environment["CLAUDE_CONFIG_DIR"] = nil
+        let service = CLIUsageService.live(environment: environment, homeDirectory: root)
+
+        let snapshot = try #require(
+            try await service.fetch(providers: [.claude]).first
+        )
+
+        #expect(snapshot.state == .available)
+        #expect(snapshot.windows.map(\.remainingPercent) == [88, 66, 44])
+    }
+
     @Test("Claude removes null windows and reports a malformed model beside valid account windows")
     func claudeNullAndMalformedWindows() throws {
         let payload = Data(#"""

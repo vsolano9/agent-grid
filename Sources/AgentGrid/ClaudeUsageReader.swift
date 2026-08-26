@@ -3,16 +3,26 @@ import Foundation
 actor ClaudeUsageReader: ProviderQuotaReading {
     private let accessTokenLoader: any ProviderAccessTokenLoading
     private let transport: any ProviderUsageHTTPTransport
+    private let cliExecutable: URL?
+    private let cliRunner: (any CLICommandRunning)?
 
     init(
         accessTokenLoader: any ProviderAccessTokenLoading,
-        transport: any ProviderUsageHTTPTransport
+        transport: any ProviderUsageHTTPTransport,
+        cliExecutable: URL? = nil,
+        cliRunner: (any CLICommandRunning)? = nil
     ) {
         self.accessTokenLoader = accessTokenLoader
         self.transport = transport
+        self.cliExecutable = cliExecutable
+        self.cliRunner = cliRunner
     }
 
     func fetchObservation() async throws -> ProviderUsageObservation {
+        if let cliObservation = try await fetchCLIObservation() {
+            return cliObservation
+        }
+
         let token = try await accessTokenLoader.loadAccessToken()
         guard let url = URL(string: "https://api.anthropic.com/api/oauth/usage") else {
             throw ProviderUsageError.invalidResponse
@@ -31,6 +41,24 @@ actor ClaudeUsageReader: ProviderQuotaReading {
             throw ProviderUsageError.httpStatus(response.statusCode)
         }
         return try ClaudeUsageParser.parseObservation(from: response.data)
+    }
+
+    private func fetchCLIObservation() async throws -> ProviderUsageObservation? {
+        guard let cliExecutable, let cliRunner else { return nil }
+        let outcome = await cliRunner.run(CLICommand(
+            executable: cliExecutable,
+            arguments: ["/usage"],
+            timeout: .seconds(15),
+            capturesOutput: true
+        ))
+        switch outcome {
+        case .exited(status: 0, let output):
+            return try? ClaudeUsageParser.parseObservation(from: Data(output.utf8))
+        case .cancelled:
+            throw CancellationError()
+        case .exited, .timedOut, .failedToStart:
+            return nil
+        }
     }
 }
 
@@ -141,8 +169,8 @@ enum ClaudeUsageParser {
         from data: Data,
         fetchedAt: Date = Date()
     ) throws -> ProviderUsageObservation {
-        guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw ProviderUsageError.invalidResponse
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return try parseCLIObservation(from: data, fetchedAt: fetchedAt)
         }
         let accountKeys = ["five_hour", "seven_day"]
         let namedKeys = root.keys.filter {
@@ -203,6 +231,109 @@ enum ClaudeUsageParser {
         }
         guard !observations.isEmpty else { throw ProviderUsageError.missingQuota }
         return ProviderUsageObservation(windows: observations, fetchedAt: fetchedAt)
+    }
+
+    private static func parseCLIObservation(
+        from data: Data,
+        fetchedAt: Date
+    ) throws -> ProviderUsageObservation {
+        guard let rawText = String(data: data, encoding: .utf8) else {
+            throw ProviderUsageError.invalidResponse
+        }
+        let text = rawText.replacingOccurrences(
+            of: #"\u{001B}\[[0-?]*[ -/]*[@-~]"#,
+            with: "",
+            options: .regularExpression
+        )
+        var account: [String: ProviderUsageWindowObservation] = [:]
+        var named: [String: ProviderUsageWindowObservation] = [:]
+
+        for rawLine in text.components(separatedBy: .newlines) {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let separator = line.firstIndex(of: ":") else { continue }
+            let heading = String(line[..<separator]).trimmingCharacters(in: .whitespaces)
+            let value = String(line[line.index(after: separator)...])
+                .trimmingCharacters(in: .whitespaces)
+
+            let key: String
+            let label: String
+            let destination: ObservationDestination
+            switch heading.lowercased() {
+            case "current session":
+                key = "five_hour"
+                label = "5 hr"
+                destination = .account
+            case "current week (all models)":
+                key = "seven_day"
+                label = "Weekly"
+                destination = .account
+            default:
+                let lower = heading.lowercased()
+                let prefix = "current week ("
+                guard lower.hasPrefix(prefix), heading.hasSuffix(")") else { continue }
+                let nameStart = heading.index(heading.startIndex, offsetBy: prefix.count)
+                let name = String(heading[nameStart..<heading.index(before: heading.endIndex)])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.isEmpty, let normalizedName = normalizedKey(name) else { continue }
+                key = "seven_day_\(normalizedName)"
+                label = name
+                destination = .named
+            }
+
+            let id = ProviderUsageWindowID(provider: .claude, key: key)
+            let observation: ProviderUsageWindowObservation
+            if let remainingPercent = cliRemainingPercent(value) {
+                observation = .available(ProviderUsageWindowValue(
+                    id: id,
+                    label: label,
+                    remainingPercent: remainingPercent,
+                    resetsAt: nil
+                ))
+            } else {
+                observation = .failed(id: id, reason: "Claude \(key) quota was malformed.")
+            }
+            switch destination {
+            case .account: account[key] = observation
+            case .named: named[key] = observation
+            }
+        }
+
+        let order = ["five_hour", "seven_day"]
+        let observations = order.compactMap { account[$0] }
+            + named.keys.sorted().compactMap { named[$0] }
+        guard !observations.isEmpty else { throw ProviderUsageError.missingQuota }
+        return ProviderUsageObservation(windows: observations, fetchedAt: fetchedAt)
+    }
+
+    private static func cliRemainingPercent(_ value: String) -> Int? {
+        let expression = try? NSRegularExpression(
+            pattern: #"^([0-9]+(?:\.[0-9]+)?)\s*%\s*(used|left|remaining)$"#,
+            options: .caseInsensitive
+        )
+        let range = NSRange(value.startIndex..<value.endIndex, in: value)
+        guard let match = expression?.firstMatch(in: value, range: range),
+              match.range == range,
+              let numberRange = Range(match.range(at: 1), in: value),
+              let directionRange = Range(match.range(at: 2), in: value),
+              let percent = Double(value[numberRange]),
+              percent.isFinite else { return nil }
+        let bounded = min(max(percent, 0), 100)
+        return String(value[directionRange]).caseInsensitiveCompare("used") == .orderedSame
+            ? Int((100 - bounded).rounded())
+            : Int(bounded.rounded())
+    }
+
+    private static func normalizedKey(_ value: String) -> String? {
+        let pieces = value.lowercased().unicodeScalars.split {
+            !CharacterSet.alphanumerics.contains($0)
+        }
+        let normalized = pieces.map(String.init).joined(separator: "_")
+        return normalized.isEmpty ? nil : normalized
+    }
+
+    private enum ObservationDestination {
+        case account
+        case named
     }
 
     private static func label(for key: String) -> String {

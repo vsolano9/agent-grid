@@ -1,6 +1,6 @@
 # AgentGrid
 
-Current local release: **1.3.4 (9)**.
+Current local release: **1.3.5 (10)**.
 
 AgentGrid is a lightweight native macOS app that opens four real terminal sessions in each grid of one maximized window. On launch—and whenever a new grid is created—you choose the CLI for each position:
 
@@ -90,7 +90,7 @@ The generated Xcode project pins [SwiftTerm](https://github.com/migueldeicaza/Sw
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail uses the existing Claude Keychain item, Cursor's read-only state database, the authenticated Codex app-server session, and the installed Grok CLI's canonical ACP billing method (`initialize`, then `_x.ai/billing`). AgentGrid never refreshes or rewrites Claude-owned OAuth credentials: an expired login or usage 401 is shown as a sanitized instruction to run `/login` in Claude Code, while any last-good Claude quota remains stale. AgentGrid does not read Grok credentials directly, and secrets and provider payloads are never logged or persisted.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, an official updater only when needed, and `--version`; it does not change authentication or provider configuration. The usage rail reads Claude's native `/usage` output first and falls back to the existing Claude OAuth credential, while Cursor uses its read-only state database, Codex uses its authenticated app-server session, and Grok uses the installed CLI's canonical ACP billing method (`initialize`, then `_x.ai/billing`). AgentGrid never refreshes or rewrites Claude-owned OAuth credentials: if both native usage and OAuth fallback fail because the login expired, it shows a sanitized instruction to run `/login` in Claude Code while any last-good Claude quota remains stale. AgentGrid does not read Grok credentials directly, and secrets and provider payloads are never logged or persisted.
 
 ## License
 

@@ -4,10 +4,10 @@ import Testing
 @testable import AgentGrid
 
 struct RuntimePolicyTests {
-    @Test("app bundle reports release 1.3.4 build 9")
+    @Test("app bundle reports release 1.3.5 build 10")
     func releaseMetadata() {
-        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == "1.3.4")
-        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String == "9")
+        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == "1.3.5")
+        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String == "10")
     }
 
     @Test("The Work root is preferred when it exists")
