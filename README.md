@@ -1,6 +1,6 @@
 # AgentGrid
 
-Current local release: **1.3.5 (10)**.
+Latest release: **1.4.0 (11)**. See [CHANGELOG.md](CHANGELOG.md).
 
 AgentGrid is a lightweight native macOS app that opens four real terminal sessions in each grid of one maximized window. On launch—and whenever a new grid is created—you choose the CLI for each position:
 
@@ -12,7 +12,7 @@ AgentGrid is a lightweight native macOS app that opens four real terminal sessio
 | Cursor Agent | `--yolo` |
 | Hermes Agent | `--yolo` |
 
-Every position is independent, so combinations such as four Codex sessions or four Hermes Agent sessions are supported. AgentGrid remembers the four CLI choices separately for each numbered grid and restores them on later launches. Each grid also has an independent working directory, defaulting to the Work root below. A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
+Every position is independent, so combinations such as four Codex sessions or four Hermes Agent sessions are supported. AgentGrid remembers the four CLI choices separately for each numbered grid and restores them on later launches. Each grid also has an independent working directory, defaulting to the last folder you chose (your home folder until you choose one). A grid starts its terminals only after `Launch Grid` is selected. The compact tab strip can keep up to six independent grids open. `⌘T` opens a fresh grid setup, and `⌘1` through `⌘6` switch between open grids. Switching preserves every running terminal session and every unlaunched selection; a tab's close button terminates only that grid's PTYs. AgentGrid still has no sidebars, pane headers, or settings.
 
 Before terminal setup appears, AgentGrid checks Codex, Claude, Grok, Cursor Agent, and Hermes Agent in order. It installs a CLI only when its official version check reports a newer release, then repairs the stable launchers under `~/.local/bin` and verifies every launcher with `--version`. Hermes is the deliberate exception: AgentGrid reports an available Hermes update but never runs its updater, because a managed or customized Hermes checkout must remain under its owner's control. A failed check or update is shown as a warning when the previously installed provider launcher still verifies. A missing or broken command blocks terminal launch and offers Retry, so a grid never starts with an unusable CLI alias.
 
@@ -46,13 +46,7 @@ Authentication and model/provider setup remain owned by each CLI. A newly instal
 
 ## Working directory
 
-Every new grid defaults to:
-
-```text
-/Volumes/Extreme Pro/Documents/Work
-```
-
-Use `Change…` during grid setup to choose another folder for that grid. The choice freezes when the grid launches; the next new grid starts at the Work default again. If the Work folder is unavailable, AgentGrid falls back to the current user's home directory. macOS asks for removable-volume access the first time this external-volume folder is used; choose **Allow** to keep the Work directory as the default terminal root.
+The first grid starts in your home folder. Use `Change…` during grid setup to choose another folder for that grid. AgentGrid remembers the last folder you chose as the default for every new grid, including after a relaunch. A grid's folder freezes when the grid launches, so a later choice never moves a running grid. If the remembered folder is missing when AgentGrid starts (for example, an external drive that is not mounted), new grids start in your home folder until you choose again. macOS may ask once for access when the folder is on a removable volume or in a protected location such as Documents; choose **Allow** so the terminals can use it.
 
 ## Build and test
 
@@ -75,22 +69,32 @@ After a Release build, verify that Xcode compiled the icon and asset catalog:
 scripts/verify-app-icon.sh /path/to/AgentGrid.app
 ```
 
-Local Release builds use the exact Apple Development identity `Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)` with certificate team identifier `9UKJNG8B38`, hardened runtime, the fixed bundle ID, and no App Sandbox. (`RC5PWHKSF3` is part of the certificate label, not its TeamIdentifier.) Verify a Release before installation, then use the recoverable fixed-path installer:
+## Install
+
+Build a Release app and copy it to `~/Applications`:
 
 ```bash
-scripts/verify-local-release-signing.sh /path/to/AgentGrid.app
-scripts/verify-local-release-pair.sh /path/to/build-a/AgentGrid.app /path/to/build-b/AgentGrid.app
-scripts/install-local-release.sh /path/to/AgentGrid.app
-scripts/verify-local-release-signing.sh --installed /Users/victor/Applications/AgentGrid.app
+xcodegen generate
+xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Release \
+  -derivedDataPath build \
+  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+  build
+mkdir -p ~/Applications
+ditto build/Build/Products/Release/AgentGrid.app ~/Applications/AgentGrid.app
+open ~/Applications/AgentGrid.app
 ```
 
-The installer preserves the previous bundle at `/Users/victor/Applications/AgentGrid.app.previous` until postflight is complete. AgentGrid checks Accessibility quietly at launch and app activation; it never prompts or opens System Settings without an explicit click. Accessibility only extends focus-intent detection to global keyboard events; local keyboard intent, outside mouse intent, and **Allow Next App Switch** remain available without it. The first move from the older ad-hoc build to this stable identity may require one user-approved permission migration. AgentGrid cannot grant itself Full Disk Access and reports protected-file readiness only after an actual required provider credential/config read returns `EPERM` or `EACCES`; a successful retry clears that issue. Apple Development signing is stable for this Mac and preserves the app's designated identity across local updates, but it is not notarized distribution signing and cannot bypass macOS consent.
+`CODE_SIGN_IDENTITY=-` signs the app ad hoc for this Mac only. macOS ties Accessibility permission to the signature, so an ad-hoc build asks again after every rebuild. To keep the permission across updates, sign with your own certificate instead: `CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team ID>`. AgentGrid is not notarized for distribution.
+
+AgentGrid checks Accessibility quietly at launch and app activation; it never prompts or opens System Settings without an explicit click. Accessibility only extends focus-intent detection to global keyboard events; local keyboard intent, outside mouse intent, and **Allow Next App Switch** remain available without it. AgentGrid cannot grant itself Full Disk Access and reports protected-file readiness only after an actual required provider credential/config read returns `EPERM` or `EACCES`; a successful retry clears that issue.
+
+The `scripts/` folder also holds the maintainer's release checks (`verify-local-release-signing.sh`, `verify-local-release-pair.sh`, `install-local-release.sh`). They are pinned to the maintainer's own certificate and install path, so other builds use the steps above.
 
 The generated Xcode project uses the repository-owned SwiftTerm 1.20.0 snapshot in `Vendor/SwiftTerm`, pinned to upstream commit `5d14406844143538cd8f8851d2d8a67c1fe443e5` with AgentGrid's bounded Kitty-transfer patch documented alongside it. Provider usage integration was informed by the MIT-licensed [CodexBar](https://github.com/steipete/CodexBar); attribution is retained in `THIRD_PARTY_NOTICES.md`. CI is intentionally local-only.
 
 ## Safety
 
-Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid in macOS preferences. It stores no credentials, quota history, prompts, terminal state, working-directory choice, or telemetry. Startup maintenance invokes official version checks, supported provider updaters only when needed, and `--version`; it never runs the Hermes updater and does not change authentication or provider configuration. The usage rail reads Claude's native `/usage` output first and falls back to the existing Claude OAuth credential, while Cursor uses its read-only state database, Codex uses its authenticated app-server session, and Grok uses the installed CLI's canonical ACP billing method (`initialize`, then `_x.ai/billing`). AgentGrid never refreshes or rewrites Claude-owned OAuth credentials: if both native usage and OAuth fallback fail because the login expired, it shows a sanitized instruction to run `/login` in Claude Code while any last-good Claude quota remains stale. AgentGrid does not read Grok credentials directly, and secrets and provider payloads are never logged or persisted.
+Every selected agent starts in its unrestricted/auto-approval mode. They can execute commands and modify files without asking for confirmation. AgentGrid stores only the four selected CLI names for each numbered grid and the default working-directory path in macOS preferences. It stores no credentials, quota history, prompts, terminal state, or telemetry. Startup maintenance invokes official version checks, supported provider updaters only when needed, and `--version`; it never runs the Hermes updater and does not change authentication or provider configuration. The usage rail reads Claude's native `/usage` output first and falls back to the existing Claude OAuth credential, while Cursor uses its read-only state database, Codex uses its authenticated app-server session, and Grok uses the installed CLI's canonical ACP billing method (`initialize`, then `_x.ai/billing`). AgentGrid never refreshes or rewrites Claude-owned OAuth credentials: if both native usage and OAuth fallback fail because the login expired, it shows a sanitized instruction to run `/login` in Claude Code while any last-good Claude quota remains stale. AgentGrid does not read Grok credentials directly, and secrets and provider payloads are never logged or persisted.
 
 ## License
 

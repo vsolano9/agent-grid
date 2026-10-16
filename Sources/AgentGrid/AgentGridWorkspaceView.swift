@@ -24,9 +24,7 @@ struct AgentGridWorkspaceView: View {
         self.maintenanceWarnings = maintenanceWarnings
         self.usage = usage
         self.refreshUsage = refreshUsage
-        _tabs = State(
-            initialValue: GridTabsModel(defaultWorkspace: configuration.workspace)
-        )
+        _tabs = State(initialValue: GridTabsModel())
     }
 
     var body: some View {

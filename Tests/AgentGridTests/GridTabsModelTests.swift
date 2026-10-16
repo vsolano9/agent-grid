@@ -88,18 +88,19 @@ struct GridTabsModelTests {
         ])
     }
 
-    @Test("each grid starts in Work and freezes its own directory at launch")
+    @Test("each grid starts in the default folder, freezes its own directory at launch and saves the last choice")
     func perGridWorkingDirectory() throws {
-        let work = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work")
-        let custom = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work/apps")
+        let home = URL(fileURLWithPath: "/Users/test")
+        let custom = URL(fileURLWithPath: "/Users/test/Projects/apps")
         let ignored = URL(fileURLWithPath: "/tmp")
+        let store = InMemoryGridSelectionStore()
         let model = GridTabsModel(
-            defaultWorkspace: work,
-            selectionStore: InMemoryGridSelectionStore()
+            workspaceLocator: WorkspaceLocator(homeDirectory: home, isDirectory: { _ in true }),
+            selectionStore: store
         )
         let first = try #require(model.grids.first)
 
-        #expect(first.draftWorkingDirectory == work)
+        #expect(first.draftWorkingDirectory == home)
         #expect(first.launchedWorkingDirectory == nil)
 
         model.setWorkingDirectory(custom, in: first.id)
@@ -111,8 +112,15 @@ struct GridTabsModelTests {
         #expect(model.grid(id: first.id)?.draftWorkingDirectory == custom)
 
         let second = try #require(model.addGrid())
-        #expect(second.draftWorkingDirectory == work)
+        #expect(second.draftWorkingDirectory == custom)
         #expect(second.launchedWorkingDirectory == nil)
+
+        let relaunched = GridTabsModel(
+            workspaceLocator: WorkspaceLocator(homeDirectory: home, isDirectory: { _ in true }),
+            selectionStore: store
+        )
+        #expect(store.defaultWorkingDirectory() == custom)
+        #expect(relaunched.grids.first?.draftWorkingDirectory == custom)
     }
 
     @Test("adding selects a monotonically named grid")
@@ -198,6 +206,7 @@ struct GridTabsModelTests {
 
 private final class InMemoryGridSelectionStore: GridSelectionPersisting {
     private var selections: [Int: AgentGridSelection]
+    private var workingDirectory: URL?
 
     init(selections: [Int: AgentGridSelection] = [:]) {
         self.selections = selections
@@ -209,5 +218,13 @@ private final class InMemoryGridSelectionStore: GridSelectionPersisting {
 
     func save(_ selection: AgentGridSelection, forGrid number: Int) {
         selections[number] = selection
+    }
+
+    func defaultWorkingDirectory() -> URL? {
+        workingDirectory
+    }
+
+    func saveDefaultWorkingDirectory(_ directory: URL) {
+        workingDirectory = directory
     }
 }

@@ -4,35 +4,34 @@ import Testing
 @testable import AgentGrid
 
 struct RuntimePolicyTests {
-    @Test("app bundle reports release 1.3.5 build 10")
+    @Test("app bundle reports release 1.4.0 build 11")
     func releaseMetadata() {
-        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == "1.3.5")
-        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String == "10")
+        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String == "1.4.0")
+        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String == "11")
     }
 
-    @Test("The Work root is preferred when it exists")
+    @Test("The saved default folder is preferred when it exists")
     func preferredWorkspace() {
-        let work = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work")
+        let saved = URL(fileURLWithPath: "/Users/test/Projects")
         let home = URL(fileURLWithPath: "/home/test")
         let locator = WorkspaceLocator(
-            preferredWorkspace: work,
             homeDirectory: home,
-            isDirectory: { $0 == work }
+            isDirectory: { $0 == saved }
         )
 
-        #expect(locator.workspace() == work)
+        #expect(locator.workspace(preferring: saved) == saved)
+        #expect(locator.workspace() == home)
     }
 
-    @Test("Home is used when the Work root is unavailable")
+    @Test("Home is used when the saved default folder is unavailable")
     func homeFallback() {
         let home = URL(fileURLWithPath: "/home/test")
         let locator = WorkspaceLocator(
-            preferredWorkspace: URL(fileURLWithPath: "/missing"),
             homeDirectory: home,
             isDirectory: { _ in false }
         )
 
-        #expect(locator.workspace() == home)
+        #expect(locator.workspace(preferring: URL(fileURLWithPath: "/missing")) == home)
     }
 
     @Test("Terminal environment puts canonical CLI aliases ahead of inherited paths")

@@ -154,7 +154,7 @@ struct AgentLaunchCatalogTests {
 
     @Test("Every CLI starts in the shared workspace")
     func workingDirectory() {
-        let workspace = URL(fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work")
+        let workspace = URL(fileURLWithPath: "/Users/test/Projects")
         let specs = AgentLaunchCatalog.make(
             workspace: workspace,
             resolver: StubExecutableResolver()

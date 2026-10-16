@@ -26,14 +26,17 @@ final class GridTabsModel {
     private(set) var grids: [AgentGridTab]
     private(set) var selectedID: AgentGridTab.ID
     private var nextNumber: Int
-    private let defaultWorkspace: URL
+    private var defaultWorkspace: URL
     private let selectionStore: any GridSelectionPersisting
 
     init(
-        defaultWorkspace: URL = WorkspaceLocator.workRoot,
+        workspaceLocator: WorkspaceLocator = WorkspaceLocator(),
         selectionStore: any GridSelectionPersisting = UserDefaultsGridSelectionStore()
     ) {
-        self.defaultWorkspace = defaultWorkspace
+        let defaultWorkspace = workspaceLocator.workspace(
+            preferring: selectionStore.defaultWorkingDirectory()
+        )
+        self.defaultWorkspace = defaultWorkspace.standardizedFileURL
         self.selectionStore = selectionStore
         let first = Self.makeDraft(
             number: 1,
@@ -98,7 +101,10 @@ final class GridTabsModel {
             return
         }
 
-        grids[index].draftWorkingDirectory = directory.standardizedFileURL
+        let directory = directory.standardizedFileURL
+        grids[index].draftWorkingDirectory = directory
+        defaultWorkspace = directory
+        selectionStore.saveDefaultWorkingDirectory(directory)
     }
 
     @discardableResult

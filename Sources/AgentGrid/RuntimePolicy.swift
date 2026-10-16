@@ -1,17 +1,10 @@
 import Foundation
 
 struct WorkspaceLocator: Sendable {
-    static let workRoot = URL(
-        fileURLWithPath: "/Volumes/Extreme Pro/Documents/Work",
-        isDirectory: true
-    )
-
-    private let preferredWorkspace: URL
     private let homeDirectory: URL
     private let isDirectory: @Sendable (URL) -> Bool
 
     init(
-        preferredWorkspace: URL = Self.workRoot,
         homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
         isDirectory: @escaping @Sendable (URL) -> Bool = { url in
             var isDirectory: ObjCBool = false
@@ -19,13 +12,16 @@ struct WorkspaceLocator: Sendable {
             return exists && isDirectory.boolValue
         }
     ) {
-        self.preferredWorkspace = preferredWorkspace
         self.homeDirectory = homeDirectory
         self.isDirectory = isDirectory
     }
 
-    func workspace() -> URL {
-        isDirectory(preferredWorkspace) ? preferredWorkspace : homeDirectory
+    /// The saved default folder while it still exists, otherwise the user's home directory.
+    func workspace(preferring savedDefault: URL? = nil) -> URL {
+        if let savedDefault, isDirectory(savedDefault) {
+            return savedDefault
+        }
+        return homeDirectory
     }
 }
 
