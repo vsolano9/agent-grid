@@ -76,20 +76,26 @@ Build a Release app and copy it to `~/Applications`:
 ```bash
 xcodegen generate
 xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Release \
-  -derivedDataPath build \
-  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
-  AD_HOC_CODE_SIGNING_ALLOWED=YES \
-  build
+  -derivedDataPath build build
 mkdir -p ~/Applications
 ditto build/Build/Products/Release/AgentGrid.app ~/Applications/AgentGrid.app
 open ~/Applications/AgentGrid.app
 ```
 
-`CODE_SIGN_IDENTITY=-` signs the app ad hoc for this Mac only. macOS ties Accessibility permission to the signature, so an ad-hoc build asks again after every rebuild. To keep the permission across updates, sign with your own certificate instead: replace the two signing lines with `CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team ID> CODE_SIGN_IDENTITY="Apple Development"`. AgentGrid is not notarized for distribution.
+Without a local signing configuration, the Release build is signed ad hoc for this Mac only. macOS ties Accessibility permission to the signature, so an ad-hoc build asks again after every rebuild. To keep the permission across updates, sign with your own Apple Development certificate: copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` (Git ignores it), fill in your identity and team, and build again. AgentGrid is not notarized for distribution.
+
+With `Config/Local.xcconfig` in place, the release scripts check a signed build and install it at a fixed path:
+
+```bash
+scripts/verify-local-release-signing.sh build/Build/Products/Release/AgentGrid.app
+scripts/verify-local-release-pair.sh /path/to/build-a/AgentGrid.app /path/to/build-b/AgentGrid.app
+scripts/install-local-release.sh build/Build/Products/Release/AgentGrid.app
+scripts/verify-local-release-signing.sh --installed ~/Applications/AgentGrid.app
+```
+
+They accept only the identity and team in that file, require the hardened runtime and no unused entitlements, and refuse to run without it. The installer keeps the previous bundle at `AgentGrid.app.previous` until the installed copy verifies. It installs to `~/Applications/AgentGrid.app` unless `AGENTGRID_INSTALL_PATH` in the same file names another path.
 
 AgentGrid checks Accessibility quietly at launch and app activation; it never prompts or opens System Settings without an explicit click. Accessibility only extends focus-intent detection to global keyboard events; local keyboard intent, outside mouse intent, and **Allow Next App Switch** remain available without it. AgentGrid cannot grant itself Full Disk Access and reports protected-file readiness only after an actual required provider credential/config read returns `EPERM` or `EACCES`; a successful retry clears that issue.
-
-The `scripts/` folder also holds the maintainer's release checks (`verify-local-release-signing.sh`, `verify-local-release-pair.sh`, `install-local-release.sh`). They are pinned to the maintainer's own certificate and install path, so other builds use the steps above.
 
 The generated Xcode project uses the repository-owned SwiftTerm 1.20.0 snapshot in `Vendor/SwiftTerm`, pinned to upstream commit `5d14406844143538cd8f8851d2d8a67c1fe443e5` with AgentGrid's bounded Kitty-transfer patch documented alongside it. Provider usage integration was informed by the MIT-licensed [CodexBar](https://github.com/steipete/CodexBar); attribution is retained in `THIRD_PARTY_NOTICES.md`. CI is intentionally local-only.
 

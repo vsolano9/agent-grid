@@ -13,7 +13,7 @@
 ## Execution constraints
 
 - Writer: current Codex session, isolated branch `feature/custom-cli-grid` and worktree `.worktrees/custom-cli-grid`.
-- Preserve `/Volumes/Extreme Pro/Documents/Work`, the six-grid cap, retained terminal identity, exact YOLO arguments, and non-fullscreen window behavior.
+- Preserve the maintainer's Work folder, the six-grid cap, retained terminal identity, exact YOLO arguments, and non-fullscreen window behavior.
 - Follow red-green-refactor for every behavior slice. Do not change the generated `.xcodeproj` by hand.
 - Bump the app to marketing version 1.2.0/build 3 only after behavior is green, then regenerate the tracked project.
 - Stop condition: full tests/builds, manual runtime and visual checks, docs, cleanup, reviewed diff, committed/pushed branch, merged/pushed `main`, installed app postflight, and no unreported requirement gap.

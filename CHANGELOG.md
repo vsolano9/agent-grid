@@ -6,6 +6,16 @@ are recorded only in the Git history.
 
 ## [Unreleased]
 
+### Changed
+
+- Release signing reads its identity and team from an untracked
+  `Config/Local.xcconfig` (template: `Config/Local.xcconfig.example`). Without
+  it, a plain Release build is signed ad hoc, so the README build command needs
+  no signing overrides.
+- The local release scripts take the identity they accept from the same file
+  and refuse to run without one. They install to `~/Applications/AgentGrid.app`
+  unless `AGENTGRID_INSTALL_PATH` names another path.
+
 ## [1.4.0] - 2026-10-16
 
 ### Changed

@@ -330,15 +330,15 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
 
    Expected red reason: readiness abstractions and UI do not exist.
 3. Implement quiet supported preflight and one non-modal readiness surface. Preserve terminal sessions if permission state changes. Do not create a fake generic Full Disk Access probe; report failure from the actual protected operation.
-4. In `project.yml`, keep the fixed bundle ID and set Manual Release signing to certificate team `9UKJNG8B38` with exact identity `Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)` and no ad-hoc fallback. Certificate inspection, not the label suffix, is authoritative: `OU=9UKJNG8B38`; `RC5PWHKSF3` is not the TeamIdentifier. Preserve hardened runtime and unsandboxed behavior. Add no unused entitlement or Info.plist usage description.
+4. In `project.yml`, keep the fixed bundle ID and set Manual Release signing to certificate team `<team ID>` with exact identity `Apple Development: <maintainer email> (<label>)` and no ad-hoc fallback. Certificate inspection, not the label suffix, is authoritative: `OU=<team ID>`; `<label>` is not the TeamIdentifier. Preserve hardened runtime and unsandboxed behavior. Add no unused entitlement or Info.plist usage description.
 5. Add a failing shell verifier first. It must reject ad-hoc/no-team bundles and validate:
    - `codesign --verify --deep --strict`;
    - authority contains `Apple Development`;
-   - `TeamIdentifier=9UKJNG8B38`, with a regression proving the identity label suffix `RC5PWHKSF3` is not accepted as TeamIdentifier;
+   - `TeamIdentifier=<team ID>`, with a regression proving the identity label suffix `<label>` is not accepted as TeamIdentifier;
    - bundle ID `com.thechosenvictor.AgentGrid`;
    - hardened-runtime flag present;
    - compiled entitlements do not enable App Sandbox or unused protected capabilities;
-   - installed path is exactly `/Users/victor/Applications/AgentGrid.app` when install validation is requested.
+   - installed path is exactly `~/Applications/AgentGrid.app` when install validation is requested.
 6. Add the installer using an explicit source bundle and fixed destination. It must verify before replacement, copy without post-sign mutation, verify after replacement, and leave a recoverable previous bundle until postflight succeeds. It must not use a broad glob or delete outside the exact app sibling paths.
 7. Regenerate, then build two distinct Release products:
 
@@ -346,13 +346,13 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
    security find-identity -v -p codesigning
    xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Release \
      -derivedDataPath DerivedData-sign-a -skipPackagePluginValidation \
-     DEVELOPMENT_TEAM=9UKJNG8B38 CODE_SIGN_STYLE=Manual \
-     CODE_SIGN_IDENTITY='Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)' \
+     DEVELOPMENT_TEAM=<team ID> CODE_SIGN_STYLE=Manual \
+     CODE_SIGN_IDENTITY='Apple Development: <maintainer email> (<label>)' \
      CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES build
    xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Release \
      -derivedDataPath DerivedData-sign-b -skipPackagePluginValidation \
-     DEVELOPMENT_TEAM=9UKJNG8B38 CODE_SIGN_STYLE=Manual \
-     CODE_SIGN_IDENTITY='Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)' \
+     DEVELOPMENT_TEAM=<team ID> CODE_SIGN_STYLE=Manual \
+     CODE_SIGN_IDENTITY='Apple Development: <maintainer email> (<label>)' \
      CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES CURRENT_PROJECT_VERSION=9 build
    ```
 8. Run the verifier on both. Capture each `codesign -d -r-` output and require exact designated-requirement equality. Run `spctl --assess --type execute --verbose=4` and record its result, but do not fail or claim Developer ID/notarization based on an Apple Development local build.
@@ -437,7 +437,7 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
 
    Require all non-live tests pass and exactly the gated live provider test skip.
 5. Build Debug and signed Release from a clean DerivedData path. Run icon verification, signature verification, generated-project drift, secret scan, and exact changed-file review.
-6. Install the verified signed Release at `/Users/victor/Applications/AgentGrid.app` with `scripts/install-local-release.sh`. Register only that path with LaunchServices. Do not launch any other build path.
+6. Install the verified signed Release at `~/Applications/AgentGrid.app` with `scripts/install-local-release.sh`. Register only that path with LaunchServices. Do not launch any other build path.
 7. Complete the one-time permission migration if macOS no longer associates the ad-hoc build's prior grants. Grant only Accessibility and Full Disk Access to the fixed installed AgentGrid bundle through supported System Settings. Relaunch twice and verify there is no repeated prompt and the readiness warning clears.
 8. Manually inspect at 800-point minimum width and a large maximized window:
    - four equal provider columns and every returned window;
@@ -462,6 +462,6 @@ Baseline at plan creation: commit `3ee7720`; 90 tests passed and the one live-pr
 - A provider contract failure leaves only that provider/window stale or unavailable. Revert its adapter without changing the snapshot/UI contract.
 - If Grok ACP reports method-not-found, confirm the maintained canonical CLI version. Do not restore direct auth-file billing.
 - If modern activation requests are denied by macOS, preserve the manual-switch escape, capture the exact helper trace, and fix the state machine; do not reintroduce deprecated force-activation APIs.
-- If the exact Apple Development identity cannot produce team `9UKJNG8B38` and an identical designated requirement across two builds, do not replace the installed app. Keep the last verified bundle and diagnose identity selection; never substitute the label suffix `RC5PWHKSF3` for the certificate team.
+- If the exact Apple Development identity cannot produce team `<team ID>` and an identical designated requirement across two builds, do not replace the installed app. Keep the last verified bundle and diagnose identity selection; never substitute the label suffix `<label>` for the certificate team.
 - If Accessibility or Full Disk Access requires consent, present the supported one-time migration. Do not modify TCC or misreport consent as complete.
 - Stop only when 1.3.4 build 9 is signed with the stable identity, installed at the fixed path, all non-live tests/build/signature gates pass, every meaningful provider window refreshes correctly, explicit user switches remain allowed, programmatic steals are rejected in the manual fixture, permission readiness remains quiet on two launches, documentation/tracker truth is current, and merged `main` equals its remote.

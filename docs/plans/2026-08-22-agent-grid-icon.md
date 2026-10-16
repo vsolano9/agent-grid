@@ -39,7 +39,7 @@
 1. Run all 12 existing tests with XcodeBuildMCP; expect zero failures.
 2. Build Release with XcodeBuildMCP; expect success with no new warnings.
 3. Inspect the compiled `.icns` and code signature.
-4. Replace `/Users/victor/Applications/AgentGrid.app`, relaunch it, and confirm the installed icon in Finder or Dock.
+4. Replace `~/Applications/AgentGrid.app`, relaunch it, and confirm the installed icon in Finder or Dock.
 5. Confirm the normal maximized window and four exact YOLO child commands remain intact.
 
 ## Task 4: Review and delivery

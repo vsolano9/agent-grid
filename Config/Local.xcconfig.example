@@ -1,0 +1,14 @@
+// Copy to Config/Local.xcconfig (ignored by Git) and replace the values with your own.
+//
+// AGENTGRID_CODE_SIGN_IDENTITY is the full certificate name exactly as `security
+// find-identity -v -p codesigning` prints it. AGENTGRID_DEVELOPMENT_TEAM is the certificate's
+// OU (its TeamIdentifier), which can differ from the code in parentheses at the end of the
+// certificate name.
+
+AGENTGRID_CODE_SIGN_IDENTITY = Apple Development: you@example.com (ABCDE12345)
+AGENTGRID_DEVELOPMENT_TEAM = TEAM123456
+AGENTGRID_AD_HOC_CODE_SIGNING_ALLOWED = NO
+
+// Optional: the fixed path install-local-release.sh installs to and verifies.
+// Defaults to ~/Applications/AgentGrid.app.
+// AGENTGRID_INSTALL_PATH = /Users/you/Applications/AgentGrid.app

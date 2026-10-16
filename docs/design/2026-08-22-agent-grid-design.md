@@ -2,7 +2,7 @@
 
 ## Outcome
 
-AgentGrid is a native macOS utility with one normal maximized window containing four equal embedded terminal panes. On launch, the panes start Codex, Claude, Grok, and Cursor Agent in their respective auto-approval modes inside `/Volumes/Extreme Pro/Documents/Work`.
+AgentGrid is a native macOS utility with one normal maximized window containing four equal embedded terminal panes. On launch, the panes start Codex, Claude, Grok, and Cursor Agent in their respective auto-approval modes inside the maintainer's Work folder.
 
 ## Constraints
 

@@ -76,4 +76,4 @@ References inspected before implementation:
 - Focused maintenance tests, the complete AgentGrid suite, Debug build, Release build, generated-project drift, and app-icon verification pass.
 - Runtime proof uses disposable fake CLI installations for update/alias behavior, then the real installed CLIs for `--version` and canonical-link resolution.
 - Manual launch inspection covers progress, warning/failure recovery, setup transition, and terminal launch after maintenance.
-- Ship the amendment as AgentGrid 1.3.1 build 5. Install the verified Release bundle at `/Users/victor/Applications/AgentGrid.app`, launch it twice, verify the first launch installs only an actually available release, and verify the second launch performs checks without unnecessary installs.
+- Ship the amendment as AgentGrid 1.3.1 build 5. Install the verified Release bundle at `~/Applications/AgentGrid.app`, launch it twice, verify the first launch installs only an actually available release, and verify the second launch performs checks without unnecessary installs.

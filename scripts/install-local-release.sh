@@ -2,7 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIRECTORY=$(cd "$(dirname "$0")" && pwd)
-DESTINATION="/Users/victor/Applications/AgentGrid.app"
+# shellcheck source=local-release-config.sh
+source "$SCRIPT_DIRECTORY/local-release-config.sh"
+DESTINATION="$LOCAL_RELEASE_INSTALL_PATH"
 VERIFY_COMMAND="$SCRIPT_DIRECTORY/verify-local-release-signing.sh"
 LSREGISTER_COMMAND="/System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister"
 MV_COMMAND="/bin/mv"

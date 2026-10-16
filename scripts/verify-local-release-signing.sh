@@ -1,10 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# shellcheck source=local-release-config.sh
+source "$(cd "$(dirname "$0")" && /bin/pwd -P)/local-release-config.sh"
+
 EXPECTED_IDENTIFIER="com.thechosenvictor.AgentGrid"
-EXPECTED_TEAM="9UKJNG8B38"
-EXPECTED_AUTHORITY="Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)"
-EXPECTED_INSTALL_PATH="/Users/victor/Applications/AgentGrid.app"
+EXPECTED_TEAM="$LOCAL_RELEASE_TEAM"
+EXPECTED_AUTHORITY="$LOCAL_RELEASE_IDENTITY"
+EXPECTED_INSTALL_PATH="$LOCAL_RELEASE_INSTALL_PATH"
 CODESIGN_COMMAND="/usr/bin/codesign"
 
 if [[ "${AGENTGRID_SCRIPT_TEST_MODE:-0}" == 1 ]]; then
@@ -21,6 +24,8 @@ if [[ $# -ne 1 ]]; then
     echo "Usage: $0 [--installed] /path/to/AgentGrid.app" >&2
     exit 64
 fi
+
+require_local_release_identity
 
 bundle=$1
 if [[ ! -d "$bundle/Contents/MacOS" ]]; then

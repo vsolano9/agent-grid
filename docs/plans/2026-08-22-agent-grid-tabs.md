@@ -61,7 +61,7 @@
 
 **Modify:** `README.md`, `CONTEXT-MAP.md`
 
-1. Build Release, verify the compiled icon/catalog and strict code signature, replace `/Users/victor/Applications/AgentGrid.app`, refresh LaunchServices, and relaunch.
+1. Build Release, verify the compiled icon/catalog and strict code signature, replace `~/Applications/AgentGrid.app`, refresh LaunchServices, and relaunch.
 2. Add two grids and switch repeatedly. Confirm 12 exact child CLI processes for three grids, hidden-session process IDs remain stable, selected terminal accepts input, closing one grid removes exactly four child processes, and the window remains maximized but not fullscreen.
 3. Inspect the installed tab strip at full window size and a narrower window; verify hover, close, scrolling, keyboard shortcuts, and reduced-motion equivalent where observable.
 4. Review every changed file and the complete diff; scan for secrets, placeholders, unrelated work, private references, and task residue.

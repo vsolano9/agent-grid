@@ -1,0 +1,12 @@
+// Release signing for the AgentGrid app target.
+//
+// Without Config/Local.xcconfig, Release builds are signed ad hoc and run only on the Mac
+// that built them. To sign with a stable identity, copy Config/Local.xcconfig.example to
+// Config/Local.xcconfig (ignored by Git) and fill in your own values; the local release
+// scripts read the same file to pin the identity they accept.
+
+AGENTGRID_CODE_SIGN_IDENTITY = -
+AGENTGRID_DEVELOPMENT_TEAM =
+AGENTGRID_AD_HOC_CODE_SIGNING_ALLOWED = YES
+
+#include? "Local.xcconfig"

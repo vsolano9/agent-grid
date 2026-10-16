@@ -8,6 +8,11 @@ INSTALL_SCRIPT="$REPO_ROOT/scripts/install-local-release.sh"
 TEST_ROOT=$(mktemp -d)
 trap '/bin/rm -rf -- "$TEST_ROOT"' EXIT
 
+export AGENTGRID_LOCAL_XCCONFIG="$TEST_ROOT/Local.xcconfig"
+/usr/bin/printf '%s\n' \
+    'AGENTGRID_CODE_SIGN_IDENTITY = Apple Development: maintainer@example.com (LABEL12345)' \
+    'AGENTGRID_DEVELOPMENT_TEAM = TEAM123456' > "$AGENTGRID_LOCAL_XCCONFIG"
+
 passed=0
 
 expect_success() {
@@ -76,9 +81,9 @@ FAKE_BIN="$TEST_ROOT/bin"
 BUNDLE="$TEST_ROOT/AgentGrid.app"
 make_bundle "$BUNDLE"
 
-VALID_DETAILS=$'Identifier=com.thechosenvictor.AgentGrid\nAuthority=Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)\nTeamIdentifier=9UKJNG8B38\nCodeDirectory v=20500 size=1 flags=0x10000(runtime)'
+VALID_DETAILS=$'Identifier=com.thechosenvictor.AgentGrid\nAuthority=Apple Development: maintainer@example.com (LABEL12345)\nTeamIdentifier=TEAM123456\nCodeDirectory v=20500 size=1 flags=0x10000(runtime)'
 ADHOC_DETAILS=$'Identifier=com.thechosenvictor.AgentGrid\nSignature=adhoc\nTeamIdentifier=not set\nCodeDirectory v=20500 size=1 flags=0x10000(runtime)'
-LABEL_SUFFIX_AS_TEAM_DETAILS=$'Identifier=com.thechosenvictor.AgentGrid\nAuthority=Apple Development: victor.solanonunez@gmail.com (RC5PWHKSF3)\nTeamIdentifier=RC5PWHKSF3\nCodeDirectory v=20500 size=1 flags=0x10000(runtime)'
+LABEL_SUFFIX_AS_TEAM_DETAILS=$'Identifier=com.thechosenvictor.AgentGrid\nAuthority=Apple Development: maintainer@example.com (LABEL12345)\nTeamIdentifier=LABEL12345\nCodeDirectory v=20500 size=1 flags=0x10000(runtime)'
 
 expect_failure "ad-hoc/no-team bundle is rejected" \
     env AGENTGRID_SCRIPT_TEST_MODE=1 AGENTGRID_CODESIGN_COMMAND="$FAKE_BIN/codesign" \
