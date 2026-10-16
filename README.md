@@ -78,13 +78,14 @@ xcodegen generate
 xcodebuild -project AgentGrid.xcodeproj -scheme AgentGrid -configuration Release \
   -derivedDataPath build \
   CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+  AD_HOC_CODE_SIGNING_ALLOWED=YES \
   build
 mkdir -p ~/Applications
 ditto build/Build/Products/Release/AgentGrid.app ~/Applications/AgentGrid.app
 open ~/Applications/AgentGrid.app
 ```
 
-`CODE_SIGN_IDENTITY=-` signs the app ad hoc for this Mac only. macOS ties Accessibility permission to the signature, so an ad-hoc build asks again after every rebuild. To keep the permission across updates, sign with your own certificate instead: `CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team ID>`. AgentGrid is not notarized for distribution.
+`CODE_SIGN_IDENTITY=-` signs the app ad hoc for this Mac only. macOS ties Accessibility permission to the signature, so an ad-hoc build asks again after every rebuild. To keep the permission across updates, sign with your own certificate instead: replace the two signing lines with `CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team ID> CODE_SIGN_IDENTITY="Apple Development"`. AgentGrid is not notarized for distribution.
 
 AgentGrid checks Accessibility quietly at launch and app activation; it never prompts or opens System Settings without an explicit click. Accessibility only extends focus-intent detection to global keyboard events; local keyboard intent, outside mouse intent, and **Allow Next App Switch** remain available without it. AgentGrid cannot grant itself Full Disk Access and reports protected-file readiness only after an actual required provider credential/config read returns `EPERM` or `EACCES`; a successful retry clears that issue.
 
