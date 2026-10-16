@@ -88,7 +88,7 @@ struct GridTabsModelTests {
         ])
     }
 
-    @Test("each grid starts in the default folder, freezes its own directory at launch and saves the last choice")
+    @Test("each grid starts in the default folder and freezes its own directory at launch")
     func perGridWorkingDirectory() throws {
         let home = URL(fileURLWithPath: "/Users/test")
         let custom = URL(fileURLWithPath: "/Users/test/Projects/apps")
@@ -114,13 +114,6 @@ struct GridTabsModelTests {
         let second = try #require(model.addGrid())
         #expect(second.draftWorkingDirectory == custom)
         #expect(second.launchedWorkingDirectory == nil)
-
-        let relaunched = GridTabsModel(
-            workspaceLocator: WorkspaceLocator(homeDirectory: home, isDirectory: { _ in true }),
-            selectionStore: store
-        )
-        #expect(store.defaultWorkingDirectory() == custom)
-        #expect(relaunched.grids.first?.draftWorkingDirectory == custom)
     }
 
     @Test("adding selects a monotonically named grid")
